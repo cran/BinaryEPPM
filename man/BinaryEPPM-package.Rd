@@ -1,47 +1,52 @@
 \name{BinaryEPPM-package}
 \alias{BinaryEPPM-package}
+\docType{package}
 \title{
-Fitting of EPPM models to binary data.
+\packageTitle{BinaryEPPM}
 }
 \description{
-Fits regression models to under- and over-dispersed binary data 
-using extended Poisson process models.
+\packageDescription{BinaryEPPM}
 }
 \details{
-\tabular{ll}{
-Package: \tab BinaryEPPM\cr
-Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2015-03-06\cr
-License: \tab GPL-2 \cr
-}
+
+The DESCRIPTION file:
+\packageDESCRIPTION{BinaryEPPM}
+\packageIndices{BinaryEPPM}
 Using Generalized Linear Model (GLM) terminology, the functions 
 utilize linear predictors for the probability of success
-and scale-factor with logit or complementary log-log link
-functions for p, and log link for scale-factor, to fit the 
-regression models. 
+and scale-factor with various link functions for p, and log link
+for scale-factor, to fit regression models. 
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+\packageAuthor{BinaryEPPM}
+
+Maintainer: \packageMaintainer{BinaryEPPM}
 }
 \references{
-Faddy M, Smith D (2012). Extended Poisson Process Modeling 
-and Analysis of Grouped Binary Data. Biometrical Journal, 
-54(3), 426-435.
+Cribari-Neto F, Zeileis A. (2010). Beta Regression in R.
+\emph{Journal of Statistical Software}, \bold{34}(2), 1-24. \doi{10.18637/jss.v034.i02}.
 
-Zeileis A, Croissant Y (2010). Extended Model Formulas in R: 
-Multiple Parts and Multiple Responses. Journal of Statistical 
-Software, 34(XYZ), 1-12. URL http://www.jstatsoft.org/v34/iXYZ/.
+Faddy M, Smith D. (2012). Extended Poisson Process Modeling and 
+Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
+\doi{10.1002/bimj.201100214}.
+
+Grun B, Kosmidis I, Zeileis A. (2012). Extended Beta Regression in R: Shaken, Stirred, Mixed, and Partitioned.
+\emph{Journal of Statistical Software}, \bold{48}(11), 1-25. \doi{10.18637/jss.v048.i11}.
+
+Zeileis A, Croissant Y. (2010). Extended Model Formulas in R: Multiple Parts and Multiple Responses.
+\emph{Journal of Statistical Software}, \bold{34}(1), 1-13. \doi{10.18637/jss.v034.i01}.
 }
 \keyword{ package }
-\examples{
-data("ropespores.grouped") 
-logdilution <- - log(ropespores.grouped$vdilution)
-initial  <- c(1.866212,9.490613)
-output.fn <- BinaryEPPM(number.spores ~ 1,
-                    model.type='p only',model='generalized binomial',
-                    data=ropespores.grouped,initial=initial,
-                    offset=list(logdilution))
-output.fn$estses[[1]] <- c('intercept p','intercept scale-factor')
-BinaryEPPM.summary(output.fn)
+\seealso{
+\code{\link[CountsEPPM:CountsEPPM-package]{CountsEPPM}} 
+\code{\link[betareg]{betareg}} 
 }
+\examples{
+data("ropespores.case")
+output.fn <- BinaryEPPM(data = ropespores.case,
+                  number.spores / number.tested ~ 1 + offset(logdilution),
+                  model.type = 'p only', model.name = 'binomial')                 
+summary(output.fn) 
+}
+
+

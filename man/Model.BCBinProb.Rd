@@ -8,7 +8,7 @@ Calculates the probabilities for beta and correlated binomials given values for 
 scale-factors. 
 }
 \usage{
-Model.BCBinProb(parameter, model.type, model, link, ntrials, covariates.matrix.p, 
+Model.BCBinProb(parameter, model.type, model.name, link, ntrials, covariates.matrix.p, 
 covariates.matrix.scalef = matrix(c(rep(1, nrow(covariates.matrix.p))), ncol = 1), 
 offset.p = c(rep(0, length(ntrials))), offset.scalef = c(rep(0, length(ntrials))))
 }
@@ -22,11 +22,14 @@ linear predictor function to the parameter p which is the 'm(1)' in equation (6)
 Faddy and Smith (2012) divided by 'N'. The 'p and scale-factor' value fits linear predictor 
 functions to both p and the scale-factor.
 }
-  \item{model}{
+  \item{model.name}{
 The model being fitted is one of the two 'beta binomial' or 'correlated binomial'. 
 }
   \item{link}{
-The link is either 'logit' or 'cloglog'.
+Takes one of nine values i.e., 'logit', 'probit', 'cloglog', 'cauchit', 'log',
+'loglog', 'double exponential', 'double reciprocal', 'power logit'. 
+The default is 'cloglog'. The 'power logit' has an attribute of 'power' for
+which the default is 1 i.e., a logit link.
 }
   \item{ntrials}{
 This is a scalar representing the denominator i.e., the length of the probability 
@@ -74,8 +77,10 @@ the limits for theta or rho.
 \references{
 Hughes G, Madden L (1995). Some methods allowing for aggregated patterns of disease 
 incidence in the analysis of data from designed experiments. Plant Pathology, 44, 927-943.
+
 Kupper L, Haseman J (1978). The use of a correlated binomial model for the analysis 
 of toxicological epxeriments. Biometrics, 34(1), 69-76.
+
 Williams D (1996). Overdispersion in logistic linear models. In B Morgan (ed.), 
 Statistics in Toxicology, 75-84. Oxford Science Publications.
 }
@@ -83,18 +88,17 @@ Statistics in Toxicology, 75-84. Oxford Science Publications.
 David M. Smith <david.m.smith@truvenhealth.com>
 }
 \examples{
+link <- 'cloglog'
+attr(link, which="p") <- make.link(link)
 parameter <- c(-0.68294630,0.03451481)
 names(parameter) <- c('p','rho')
 model.type <- 'p and scale-factor'
-model <- 'correlated binomial'
-link <- 'cloglog'
+model.name <- 'correlated binomial'
 ntrials    <- list(c(rep(10,11)))
-covariates.matrix.p      <- matrix(c(1),ncol=1) 
-covariates.matrix.scalef <- matrix(c(1),ncol=1)
-offset.p      <- matrix(c(0),ncol=1)
-offset.scalef <- matrix(c(0),ncol=1)
-output <- Model.BCBinProb(parameter, model.type, model, link, ntrials,
-                covariates.matrix.p, covariates.matrix.scalef, offset.p, offset.scalef)
+output <- Model.BCBinProb(parameter, model.type, model.name, link, ntrials,
+                covariates.matrix.p = matrix(c(1),nrow=1), 
+                covariates.matrix.scalef = matrix(c(1),nrow=1),
+                offset.p = c(0), offset.scalef = c(0))
 print(output)
 }
 \keyword{ models }

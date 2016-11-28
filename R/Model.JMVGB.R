@@ -1,5 +1,5 @@
 Model.JMVGB <-
-function(parameter,model,link,ntrials,
+function(parameter,model.name,link,ntrials,
                         covariates.matrix.p,covariates.matrix.scalef,
                         offset.p=c(rep(0,length(ntrials))),
                         offset.scalef=c(rep(0,length(ntrials)))) {
@@ -9,17 +9,18 @@ function(parameter,model,link,ntrials,
    npar.p      <- ncol(covariates.matrix.p)
    npar.scalef <- ncol(covariates.matrix.scalef)
    npar <- npar.p + npar.scalef
-   if (numpar!=numpar) {
-      cat('\n','no. of parameters not equal to sum of no. of columns mean & variance matrices','\n') }
+   if (npar!=numpar) {
+      cat("\n","no. of parameters not equal to sum of no. of columns mean & variance matrices","\n") }
    va       <- rep(0,nobs) 
    vb       <- rep(0,nobs) 
    vone     <- rep(1,nobs) 
 #  model can only be generalized binomial
    r.parameter <- rep(0,npar.p) 
    r.parameter <- parameter[1:npar.p]
-   velp <- exp(covariates.matrix.p%*%r.parameter + offset.p) 
-   if (link=="logit")   {  vp = velp / (vone + velp) }
-   if (link=="cloglog") {  vp = vone - exp(-velp) }
+   vlp <- covariates.matrix.p%*%r.parameter + offset.p
+   vone <- rep(1,nobs) 
+# inverse of link function
+   vp <- attr(link, which="p")$linkinv(vlp)
    denom <- rep(0,nobs)
    denom <- sapply(1:nobs, function(i) 
              denom[i] <- max(ntrials[[i]]) )
@@ -28,30 +29,50 @@ function(parameter,model,link,ntrials,
    nparm1      <- npar.p + 1
    r.parameter <- rep(0,npar.scalef) 
    r.parameter <- parameter[nparm1:npar]
-   vscalefact  <- exp(covariates.matrix.scalef%*%r.parameter + offset.scalef) 
-# restricting maximum variance to Poisson i.e., variance=mean
-   wkv <- vone-vp
-   vscalefact <- sapply(1:nobs, function(i) 
-             if (vscalefact[i]>(1/wkv[i])) { vscalefact[i] <- 1/wkv[i]
-                } else { vscalefact[i] <- vscalefact[i] } )
-   vvariance <- vmean*wkv*vscalefact
+   vscalefact  <- exp(covariates.matrix.scalef%*%r.parameter + offset.scalef)
    probabilities <- ntrials 
-   for ( i in 1:nobs) { nt <- denom[i] 
-      vb[i] <- uniroot(function(b,p,scalef) { wk.2bm1 <- 2*b - 1
-                        fvalue <- ((1-p)^wk.2bm1 - 1)/(-wk.2bm1*p) - scalef 
-                        return(fvalue) },lower=0,upper=1.e+20,
-                        p=vp[i],scalef=vscalefact[i],
-                        f.lower=(1/(1-vp[i])-vscalefact[i]),
-                        f.upper=-vscalefact[i],extendInt="yes",
-                        trace=1)$root
-      if (round(vb[i],digits=14)==1) { 
+   vlower <- (vone/(vone-vp)-vscalefact)
+   vlower <- sapply(1:nobs, function(i) {
+               if (is.na(vlower[i])==TRUE) { vlower[i] <- 1.e+20
+                     } else {  
+                  if (vlower[i]<=0) { vlower[i] <- 1.e-10
+                        } else { vlower[i] <- vlower[i] }}} ) # end of sapply
+   vupper <- -vscalefact
+   for ( i in 1:nobs) { 
+        uniroot.output <- uniroot(function(b,p,scalef) { 
+                       if ((p<=0) | (p>=1)) {
+                          if (p<=0) { fvalue <- 1 
+                                    } else { fvalue <- (1+scalef)/(2*scalef) }
+                                            } else { 
+                          wk.2bm1 <- 2*b - 1
+                          fvalue <- ((1-p)^wk.2bm1 - 1)/(-wk.2bm1*p) - scalef }
+                          return(fvalue) },p=vp[i],scalef=vscalefact[i],
+                          lower=0,upper=1.e+10,f.lower=vlower[i],f.upper=vupper[i],
+                          extendInt="no",check.conv=TRUE,tol=1.e-10,maxiter=100,
+                          trace=TRUE)
+        vb[i] <- uniroot.output$root
+# restricting maximum variance to Poisson i.e., variance=mean, b=0
+        if (vb[i]<0) { vb[i] <- 0 }
+        if (round(vb[i],digits=14)==1) { 
                       probabilities[[i]] <- dbinom(c(0:denom[i]),denom[i],vp[i],log=FALSE)
              } else { onemb <- 1 - vb[i]
                       va[i] <- (denom[i]^onemb - (denom[i] - vmean[i])^onemb) / onemb
-                      wk.prob <- GBprob(parameter=c(va[i],vb[i]),nt=denom[i]) 
-                      probabilities[[i]] <- wk.prob }
-                    } # end of for loop
-   output <- list(model=model,link=link,parameter=parameter,
+                      probabilities[[i]] <- GBprob(twoparameter=c(va[i],vb[i]),nt=denom[i]) }
+                       } # end of for loop
+
+# returning estimates of vb to estimates of the parameters of the 
+# linear predictor for scalefact
+         v2bm1 <- c(rep(2,nobs))*vb - vone
+         wk.vscalefact <- ((vone-vp)**v2bm1 - vone) / (-v2bm1*vp)
+# scale-factor can be less than 0, so setting scale-factor = 1.e-10 when that is so
+         wk.vscalefact <- sapply(1:nobs, function(i) {
+             if ((is.na(wk.vscalefact[i])==TRUE) | (wk.vscalefact[i]<=0)) { 
+                        wk.vscalefact[i] <- 1.e-10
+                 } else { wk.vscalefact[i] <- wk.vscalefact[i] } } ) # end of sapply
+         wk.r.parameter <- qr.solve(covariates.matrix.scalef, (log(wk.vscalefact) - offset.scalef))
+         parameter[nparm1:npar] <- wk.r.parameter 
+
+   output <- list(model.name=model.name,link=link,parameter=parameter,
                   probabilities=probabilities,
                   Dparameters=data.frame(va,vb))
    return(output)                                         }

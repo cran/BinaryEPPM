@@ -7,7 +7,7 @@ Function for obtaining output from distributional models.
 Produces output of model, parameters and probabilities from the various models.
 }
 \usage{
-Model.Binary(parameter, model.type, model, link, ntrials, covariates.matrix.p, 
+Model.Binary(parameter, model.type, model.name, link, ntrials, covariates.matrix.p, 
 covariates.matrix.scalef, offset.p, offset.scalef)
 }
 \arguments{
@@ -20,14 +20,17 @@ linear predictor function to the parameter p which is the 'm(1)' in equation (6)
 Faddy and Smith (2012) divided by 'N'. The 'p and scale-factor' value fits linear predictor 
 functions to both p and the scale-factor.
 }
-  \item{model}{
+  \item{model.name}{
 If model.type is 'p only' the model being fitted is one of the six 'binomial', 'over-dispersed-one', 
 'over-dispersed-two', 'generalized binomial', 'beta binomial' or 'correlated binomial'. If model.type 
 is 'p and scale-factor' the model being fitted is one of the three 'generalized binomial', 
 'beta binomial' or 'correlated binomial'.
 }
   \item{link}{
-The link is either 'logit' or 'cloglog'.
+Takes one of nine values i.e., 'logit', 'probit', 'cloglog', 'cauchit', 'log',
+'loglog', 'double exponential', 'double reciprocal', 'power logit'. 
+The default is 'cloglog'. The 'power logit' has an attribute of 'power' for
+which the default is 1 i.e., a logit link.
 }
   \item{ntrials}{
 This is a scalar representing the denominator i.e., the length of the probability mass 
@@ -56,25 +59,25 @@ Output which is the output from either Model.BCBinProb, Model.GB, Model.Binary,
 Model.JMVGB, or Model.ODB.
 }
 \references{
-Faddy M, Smith D (2012). Extended Poisson process modelling and analysis of grouped binary data. 
-Biometrical Journal, 54, 426-435.
+Faddy M, Smith D. (2012). Extended Poisson Process Modeling and 
+Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
+\doi{10.1002/bimj.201100214}.
 }
 \author{
 David M. Smith <david.m.smith@truvenhealth.com>
 }
 \examples{
+link <- 'cloglog'
+attr(link, which="p") <- make.link(link)
 parameter <- c(-0.68294630,0.03451481)
 names(parameter) <- c('p','rho')
 model.type <- 'p and scale-factor'
-model <- 'correlated binomial'
-link <- 'cloglog'
+model.name <- 'correlated binomial'
 ntrials    <- list(c(rep(10,11)))
-covariates.matrix.p      <- matrix(c(1),ncol=1) 
-covariates.matrix.scalef <- matrix(c(1),ncol=1)
-offset.p      <- matrix(c(0),ncol=1)
-offset.scalef <- matrix(c(0),ncol=1)
-output <- Model.BCBinProb(parameter, model.type, model, link, ntrials,
-                covariates.matrix.p, covariates.matrix.scalef, offset.p, offset.scalef)
+output <- Model.Binary(parameter, model.type, model.name, link, ntrials,
+                covariates.matrix.p = matrix(c(1),nrow=1), 
+                covariates.matrix.scalef = matrix(c(1),nrow=1),
+                offset.p = c(0), offset.scalef = c(0))
 print(output)
 }
 \keyword{ models }

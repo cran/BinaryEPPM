@@ -2,10 +2,13 @@
 \alias{Parkes.litters}
 \docType{data}
 \title{
-The data are of the number of male piglets born in varying litters sizes for the Parkes breed of pigs. 
+The data are of the number of male piglets born in litters of varying sizes for
+the Parkes breed of pigs. 
 }
 \description{ 
-The data are arranged as a list of binomial frequency distributions where the listing is by litter size which is included both as a variate (vsize) and as a factor (fsize)}
+The data are arranged as a list of binomial frequency distributions where the 
+listing is by litter size which is included both as a variate (vsize) and as 
+a factor (fsize)}
 \usage{data("Parkes.litters")}
 \format{
   The format is:
@@ -22,8 +25,9 @@ List of 3
   ..$ : num [1:12] 0 1 3 15 15 33 13 12 8 1 ...
 }
 \source{
-Brooks, R.J., James, W.H., Gray, E. (1993). Modelling Sub-Binomial Variation in the Frequency of Sex Combinations in Litters of Pigs. 
-Biometrics 47, 403-417.
+Brooks, R.J., James, W.H., Gray, E. (1993). Modelling Sub-Binomial Variation 
+in the Frequency of Sex Combinations in Litters of Pigs. Biometrics 47, 403-417.
+\doi{10.2307/2532134}
 }
 \examples{
 data("Parkes.litters")

@@ -2,7 +2,7 @@
 \alias{Williams.litters}
 \docType{data}
 \title{
-Number of  (implantations) of data of Williams (1996).
+Number of implantations, data of Williams (1996).
 }
 \description{
 The data is arranged as a list of frequency distributions of numbers of surviving foetuses for an given litter size. The litter size is the length of the frequency distribution. Dose is included both as a variate (vdose) and as a factor (fdose).
@@ -50,10 +50,13 @@ List of 3
   ..$ : num [1:20] 0 0 0 0 0 0 0 0 0 0 ...
 }
 \source{
-Williams D (1996). "Overdispersion in Logistic Linear Models." In B Mrgan (ed.), Statistics in Toxicology, pp75-84. Oxford Science Publications.
+Williams D (1996). "Overdispersion in Logistic Linear Models." In B Morgan (ed.), 
+Statistics in Toxicology, pp75-84. Oxford Science Publications.
 }
 \references{
-Faddy M, Smith D. (2012). Extended Poisson process modelling and analysis of grouped binary data. Biometrical Journal, 54, 426-435.
+Faddy M, Smith D. (2012). Extended Poisson Process Modeling and 
+Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
+\doi{10.1002/bimj.201100214}.
 }
 \examples{
 data("Williams.litters")

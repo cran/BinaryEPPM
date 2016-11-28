@@ -1,10 +1,11 @@
 GBprob <-
-function(parameter,nt) {
+function(twoparameter,nt) {
       m <- nt + 1
-      a <- parameter[1] 
-      b <- parameter[2]
-      if (b>=0) {
-         if (round(b,digits=14)==1) {
+      a <- twoparameter[1] 
+      b <- twoparameter[2]
+# a = - log(1-p)
+      if ((a>0) & ((a<1.e+20) | (a!=Inf))) {
+         if (round(b,digits=20)==1) {
             p <- 1 - exp(-a)
             probability <- dbinom(c(0:nt),nt,p,log=FALSE) 
                                           } else {
@@ -16,8 +17,10 @@ function(parameter,nt) {
             vlambda <- sapply(1:m, function(j) 
                  if ((is.finite(vlambda[j])==FALSE) | (vlambda[j]>lambda.limit)) { 
                                         vlambda[j] <- lambda.limit  
-                                      } else { vlambda[j] <- vlambda[j] } )
+                                      } else { vlambda[j] <- vlambda[j] } ) # end of sapply
             probability <- EPPMprob(vlambda) 
                                     } # end of if (b==1)
-          } else { probability <- rep(NA,m) } # end if (b>=0)
+            } else { 
+                 if (a<0) { probability <- c(1,rep(0,nt))
+                   } else { probability <- c(rep(0,nt),1) }} # end of if a>0 & a>1.e+20
       return(probability)           }

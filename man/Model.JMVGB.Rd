@@ -9,7 +9,7 @@ Calculates the probabilities for binomial and generalized
 binomial given values for p's and scale-factors. 
 }
 \usage{
-Model.JMVGB(parameter, model, link, ntrials, 
+Model.JMVGB(parameter, model.name, link, ntrials, 
             covariates.matrix.p, covariates.matrix.scalef, 
             offset.p = c(rep(0, length(ntrials))), 
             offset.scalef = c(rep(0, length(ntrials))))
@@ -19,12 +19,15 @@ Model.JMVGB(parameter, model, link, ntrials,
 A vector of the parameters of the model which is set to initial 
 estimates on function call.
 }
-  \item{model}{
+  \item{model.name}{
 The model being fitted is one of the two 'binomial' or 
 'generalized binomial'. 
 }
   \item{link}{
-The link is either 'logit' or 'cloglog'.
+Takes one of nine values i.e., 'logit', 'probit', 'cloglog', 'cauchit', 'log',
+'loglog', 'double exponential', 'double reciprocal', 'power logit'. 
+The default is 'cloglog'. The 'power logit' has an attribute of 'power' for
+which the default is 1 i.e., a logit link.
 }
   \item{ntrials}{
 This is a scalar representing the denominator i.e., the 
@@ -77,27 +80,24 @@ Faddy and Smith (2012).
 }
 }
 \references{
-Faddy M, Smith D. (2012). Extended Poisson process modelling 
-and analysis of grouped binary data. Biometrical Journal, 
-54, 426-435.
+Faddy M, Smith D. (2012). Extended Poisson Process Modeling and 
+Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
+\doi{10.1002/bimj.201100214}.
 }
 \author{
 David M. Smith <david.m.smith@truvenhealth.com>
 }
 \examples{
+link <- 'cloglog'
+attr(link, which="p") <- make.link(link)
 parameter <- c(-0.68294630,0.03451481)
 names(parameter) <- c('p','scale-factor')
-model <- 'generalized binomial'
-link <- 'cloglog'
+model.name <- 'generalized binomial'
 ntrials <- list(c(rep(10,11)))
-covariates.matrix.p      <- matrix(c(1),ncol=1) 
-covariates.matrix.scalef <- matrix(c(1),ncol=1)
-offset.p      <- matrix(c(0),ncol=1)
-offset.scalef <- matrix(c(0),ncol=1)
-output <- Model.JMVGB(parameter, model, link, ntrials, 
-                      covariates.matrix.p, 
-                      covariates.matrix.scalef, 
-                      offset.p, offset.scalef)
+output <- Model.JMVGB(parameter, model.name, link, ntrials, 
+                      covariates.matrix.p = matrix(c(1),nrow=1), 
+                      covariates.matrix.scalef = matrix(c(1),nrow=1), 
+                      offset.p = c(0), offset.scalef = c(0))
 print(output)
 }
 \keyword{ models }

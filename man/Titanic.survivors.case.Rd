@@ -2,7 +2,7 @@
 \alias{Titanic.survivors.case}
 \docType{data}
 \title{
-Titanic survivors data
+Individual case data of Titanic survivors
 }
 \description{
 These data are from the survival log of the Titanic and consist of the 
@@ -14,9 +14,9 @@ age, sex and class categories.
   A data frame with 12 observations on the following 5 variables.
   \describe{
     \item{\code{age}}{a factor with levels \code{ child} \code{ adult}}
-    \item{\code{class}}{a factor with levels \code{ 1st class} \code{ 2nd class} \code{ 3rd class}}
     \item{\code{number.passengers}}{a numeric vector}
     \item{\code{number.survive}}{a numeric vector}
+    \item{\code{pclass}}{a factor with levels \code{ 1st class} \code{ 2nd class} \code{ 3rd class}}
     \item{\code{sex}}{a factor with levels \code{ female} \code{ male}}
   }
 }

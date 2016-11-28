@@ -1,19 +1,22 @@
-\name{Titanic.survivors}
-\alias{Titanic.survivors}
+\name{Titanic.survivors.grouped}
+\alias{Titanic.survivors.grouped}
 \docType{data}
 \title{
-Titanic survivors data in list form.
+Titanic survivors data in frequency distribution form.
 }
 \description{
-These data are from the survival log of the Titanic and consist of the number of survivors out of the number of passengers broken down into age, sex and class categories. The data are in list form.
+These data are from the survival log of the Titanic and consist of the number of 
+survivors out of the number of passengers broken down into age, sex and class 
+categories. The data are in frequency distribution form i.e., a distribution as 
+a list of numbers surviving for each age, sex and class category.
 }
-\usage{data("Titanic.survivors")}
+\usage{data("Titanic.survivors.grouped")}
 \format{
   The format is:
 List of 4
  $ age           : Factor w/ 2 levels "child","adult": 1 2 1 2 1 2 1 2 1 2 ...
  $ sex           : Factor w/ 2 levels "female","male": 1 1 2 2 1 1 2 2 1 1 ...
- $ class         : Factor w/ 3 levels "1st class","2nd class",..: 1 1 1 1 2 2 2 2 3 3 ...
+ $ pclass        : Factor w/ 3 levels "1st class","2nd class",..: 1 1 1 1 2 2 2 2 3 3 ...
  $ number.survive:List of 12
   ..$ : num [1:2] 0 1
   ..$ : num [1:145] 0 0 0 0 0 0 0 0 0 0 ...
@@ -29,7 +32,9 @@ List of 4
   ..$ : num [1:463] 0 0 0 0 0 0 0 0 0 0 ...
 }
 \details{
-Hilbe (2011) first models these data as a logistic model, then finding that they are overdispersed, modeling them as count data (number of survivors, survive) with offset (log of the number of passengers, cases).
+Hilbe (2011) first models these data as a logistic model, then finding 
+that they are overdispersed, models them as count data (number of survivors, survive) 
+with offset (log of the number of passengers, cases).
 }
 \source{
 Section 9.5, Example 3, pages 263-268, Hilbe, J. (2011). 
@@ -38,7 +43,7 @@ Section 9.5, Example 3, pages 263-268, Hilbe, J. (2011).
 Hilbe, J. (2011). Negative Binomial Regression. Cambridge University Press, second edition.
 }
 \examples{
-data("Titanic.survivors")
-print(Titanic.survivors)
+data(Titanic.survivors.grouped)
+print(Titanic.survivors.grouped)
 }
 \keyword{datasets}

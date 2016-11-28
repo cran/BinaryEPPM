@@ -1,17 +1,16 @@
 \name{LL.Regression.Binary}
 \alias{LL.Regression.Binary}
 \title{
-Function called by optim, or by F.Regression.Binary called by nlm, to calculate 
-the log likelihood from the probabilities and hence perform the fitting of 
+Function called by optim to calculate the log likelihood from the probabilities and hence perform the fitting of 
 regression models to the binary data.
 }
 \description{
 Fits specified regression models to the data.
 }
 \usage{
-LL.Regression.Binary(parameter, model.type, model, link, ntrials, nsuccess, 
-                    covariates.matrix.p, covariates.matrix.scalef, 
-                    offset.p, offset.scalef)
+LL.Regression.Binary(parameter,model.type,model.name,link,ntrials,nsuccess,
+                     covariates.matrix.p,covariates.matrix.scalef,
+                     offset.p,offset.scalef,weights,grad.method)
 }
 \arguments{
   \item{parameter}{ 
@@ -25,7 +24,7 @@ as in Faddy and Smith (2012). The 'p and scale-factor' value fits linear
 predictor functions to both the 'p' and the scale-factor. The default is
 'p and scale-factor'.
 }
-  \item{model}{
+  \item{model.name}{
 If model.type is 'p only' the model being fitted is one of the four 'binomial', 
 'generalized binomial', 'beta binomial' or 'correlated binomial'. If model.type
 is 'p and scale-factor' the model being fitted is one of the three 
@@ -34,9 +33,10 @@ about these models is given in Faddy and Smith (2012).
 The default is 'generalized binomial'.
 }
   \item{link}{
-Takes one of two value i.e., 'logit' or 'cloglog' these representing the 
-logit and complementary log-log link functions respectively. 
-The default is 'cloglog'.
+Takes one of nine values i.e., 'logit', 'probit', 'cloglog', 'cauchit', 'log',
+'loglog', 'double exponential', 'double reciprocal', 'power logit'. 
+The default is 'cloglog'. The 'power logit' has an attribute of 'power' for
+which the default is 1 i.e., a logit link.
 }
   \item{ntrials}{
 A vector length 'n+1' representing the number of trials 'n' i.e., a vector 
@@ -67,6 +67,14 @@ is a vector of ones.
 An offset vector for the scale-factor. The default is a 
 vector of ones.
 }
+  \item{weights}{
+A vector or list of weights for the modeling of probability of success. The default is a 
+vector of ones.
+}
+  \item{grad.method}{
+Numerical method used to calculate gradients either simple or Richardson. The default 
+is simple.
+}
 }
 \value{
 The log likelihood is returned.
@@ -75,22 +83,22 @@ The log likelihood is returned.
 David M. Smith <david.m.smith@truvenhealth.com>
 }
 \references{
-Faddy M, Smith D (2012). Extended Poisson Process Modeling and 
-Analysis of Grouped Data. Biometrical Journal, 54(3), 426-435.
+Faddy M, Smith D. (2012). Extended Poisson Process Modeling and 
+Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
+\doi{10.1002/bimj.201100214}.
 }
 \examples{
+link <- 'cloglog'
+attr(link, which="p") <- make.link(link)
 nsuccess <- list(c(rep(0,5),352,479,530,291,101,17))
 ntrials  <- list(c(rep(10,11)))
 parameter <- c(0.06363398,-0.47085362)
-covariates.matrix.p      <- matrix(c(1),ncol=1) 
-covariates.matrix.scalef <- matrix(c(1),ncol=1)
-offset.p      <- matrix(c(0),ncol=1)
-offset.scalef <- matrix(c(0),ncol=1)
-output <- LL.Regression.Binary(parameter,model.type="p and scale-factor",
-               model="generalized binomial",link='cloglog',
-               nsuccess=nsuccess,ntrials=ntrials,
-               covariates.matrix.p,covariates.matrix.scalef,
-               offset.p,offset.scalef) 
+output <- LL.Regression.Binary(parameter, model.type = "p and scale-factor",
+            model.name = "generalized binomial", link, ntrials, nsuccess, 
+            covariates.matrix.p = matrix(c(1), nrow=1),
+            covariates.matrix.scalef = matrix(c(1), nrow=1),
+            offset.p = c(0), offset.scalef = c(0),
+            weights = list(c(rep(1,11)))) 
 print(output)
 }
 \keyword{ model }
