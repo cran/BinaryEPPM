@@ -24,22 +24,20 @@ function(x, ...) {
           if ((offsetid.p!=0) | (offsetid.scalef!=0)) { 
               cat("non zero offsets in linear predictors","\n") }  
 
-
           if (x$link=="powerlogit") { 
-              cat(paste("Coefficients (model for p with", x$link, 
-                  "link power",attr(x$link, which="power"),"):\n", sep = " "))
+              cat(paste("\n","Coefficients (model for p with", x$link, 
+                  "link power",attr(x$link, which="power"),")\n", sep = " "))
                                            } else {
-              cat(paste("Coefficients (model for p with", x$link, 
-                  " link):\n", sep = " ")) } # end if link
+              cat(paste("\n","Coefficients (model for p with", x$link, 
+                  " link)\n", sep = " ")) } # end if link
           if ((x$model.type=="p only") & (x$model.name=="generalized binomial")) {
              wks <- length(x$optim$par) 
              cat(paste("Coefficient of",names(x$optim$par)[wks],"has 1 subtracted from it\n", sep=" "))
              cat(paste("so the test is against 1 i.e., a binomial.\n")) }
           print(x$coeff.table.p)      
           if (is.null(x$coeff.table.scalef)==FALSE) {
-             if (x$model.type=="p and scale-factor") {
-                cat(paste("Coefficients (model for scale-factor with log link)\n"))
-                print(x$coeff.table.scalef) } } # end if is.null
+              cat(paste("\n","Coefficients (model for scale factor with log link)\n")) 
+              print(x$coeff.table.scalef) } # end if is.null
 
           if (is.null(x$weights)==FALSE) {
              cat("\n","Maximum weighted likelihood regression.")

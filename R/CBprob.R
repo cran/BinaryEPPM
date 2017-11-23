@@ -3,26 +3,17 @@ function(twoparameter,nt) {
    p   <- twoparameter[1] 
    q   <- 1 - p 
    rho <- twoparameter[2]
-#  m should equal nt + 1 
-   m  <- nt + 1
-   probability <- rep(0,m)
-
+   probability <- rep(0,(nt + 1))
    if ((p>0) & (q>0)) {
-        logp <- log(p)
-        logq <- log(q)
-        np  <- nt*p 
-        np2 <- np*p 
-        twopm1  <- 2*p - 1 
-        twop2q2 <- 2*(p*q)**2 
-        probability <- sapply(1:m, function(i) { 
-           im1 <- i - 1 
-           wks <- 1 + rho*( (im1-np)**2 + im1*twopm1 - np2 )/twop2q2 
-           if (wks>=0) { 
-              probability[i] <- wks*exp(im1*logp + (nt-im1)*logq)
-                       } else { probability[i] <- 0 } } ) # end of sapply
+           probability <- sapply(0:nt, function(i) { 
+# equation (4) of Kupper & Haseman, Biometrics (1978) with theta replaced by rho
+# so the denominator is 2*p*q not 2*(pq)**2
+# check on limits done in Model.BCBinProb
+           wks <- 1 + rho*( (i-nt*p)**2 + i*(2*p-1) - nt*p*p )/(2*p*q)
+           probability[i+1] <- wks*exp(i*log(p) + (nt-i)*log(q)) } ) # end of sapply
                        } else {
-        if (p==0) { probability[1] <- 1 }
-        if (p==1) { probability[m] <- 1 } } # end if ((p>0) & (q>0)) 
+        if (p<=0) { probability[1] <- 1 }
+        if (p>=1) { probability[nt + 1] <- 1 } } # end if ((p>0) & (q>0)) 
 
    output <- list(probability=probability)
    return(output) }

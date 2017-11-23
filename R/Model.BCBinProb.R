@@ -13,28 +13,31 @@ function(parameter,model.type,model.name,link,ntrials,
    npar.p      <- ncol(covariates.matrix.p)
    npar.scalef <- ncol(covariates.matrix.scalef)
    npar <- npar.p + npar.scalef
-   if (numpar!=numpar) {
+   if (numpar!=npar) {
       cat("\n","no. of parameters not equal to sum of no of columns mean & variance matrices","\n") }
- 
-   if (model.type=="p and scale-factor") {
-      nparm1      <- npar.p + 1
-      r.parameter <- rep(0,npar.scalef) 
-      r.parameter <- parameter[nparm1:npar]
-# modeling the scalefactor with log link
-      vscalefact  <- as.vector(exp(covariates.matrix.scalef%*%r.parameter + offset.scalef))
-                                         } # end if model.type
+
+# modeling p 
    r.parameter <- rep(0,npar.p) 
    r.parameter <- parameter[1:npar.p]
-   vlp <- as.vector(covariates.matrix.p%*%r.parameter + offset.p)
+   if (npar.p==0) { vlp <- offset.p
+           } else { 
+      vlp <- as.vector(covariates.matrix.p%*%r.parameter + offset.p) }
    vone <- rep(1,nobs) 
-# inverse of link function
    vp <- attr(link, which="p")$linkinv(vlp)
    denom <- rep(0,nobs)
    denom <- sapply(1:nobs, function(i) 
              denom[i] <- max(ntrials[[i]]) )
    vmean <- denom*vp
    probabilities <- ntrials 
-
+# modeling scalefactor 
+   if (model.type=="p and scale-factor") {
+      nparm1      <- npar.p + 1
+      r.parameter <- rep(0,npar.scalef) 
+      r.parameter <- parameter[nparm1:npar]
+      if (npar.scalef==0) { vsf <- offset.scalef
+           } else { 
+         vsf  <- as.vector(covariates.matrix.scalef%*%r.parameter + offset.scalef) }
+      vscalefact <- exp(vsf) } # end if model.type
 # calculating limits beta and correlated binomial
    lower.limit <- rep(0,nobs) 
    if (model.name=="beta binomial") { 
@@ -53,7 +56,6 @@ function(parameter,model.type,model.name,link,ntrials,
    if (model.name=="correlated binomial") { 
       lower.limit <- sapply(1:nobs, function(i) {
          if ((vp[i]>0) & ((1-vp[i])>0)) {
-
 # limits on rho given in Kupper & Haseman Biometrics (1978) 
             if (denom[i]==1)   { lower.limit[i] <- -1 
                                } else {
@@ -65,8 +67,8 @@ function(parameter,model.type,model.name,link,ntrials,
       upper.limit <- sapply(1:nobs, function(i) {
          if ((vp[i]>0) & ((1-vp[i])>0)) {
 # limits on rho given in Kupper & Haseman Biometrics (1978) 
-            if (denom[i]==1)   { upper.limit[i] <- 1 
-                               } else {
+            if (denom[i]==1) { upper.limit[i] <- 1 
+                      } else {
                 gamma0 <- min((c(0:denom[i]) - (denom[i] - 1)*vp[i] - 0.5)**2) 
                 upper.limit[i] <- 2*vp[i]*(1-vp[i])/((denom[i]-1)*vp[i]*(1-vp[i]) + 0.25 - gamma0) }
                                         } else {
@@ -104,11 +106,11 @@ function(parameter,model.type,model.name,link,ntrials,
       vtheta <- sapply(1:nobs, function(i) {
            if (denom[i]==1) { vtheta[i] <- vtheta[i]
                             } else { 
-           vtheta[i] <- (vscalefact[i] - 1)/(denom[i]-1) }} ) # end of sapply
+           vtheta[i] <- (vscalefact[i] - 1)/(denom[i]-1) } } ) # end of sapply
+
 # converting rho to theta for beta binomial so for the
 # correlated binomial theta is actually rho
       if (model.name=="beta binomial") { 
-         wk.temp <- vtheta
          vtheta <- vtheta/(vone-vtheta) 
          vtheta <- sapply(1:nobs, function(i) {
              if (vtheta[i]<lower.limit[i]) { vtheta[i] <- lower.limit[i]
@@ -127,13 +129,13 @@ function(parameter,model.type,model.name,link,ntrials,
 # scale-factor can be less than 0, so setting scale-factor = 1.e-10 when that is so
       wk.vscalefact <- sapply(1:nobs, function(i) {
           if (wk.vscalefact[i]<=0) { wk.vscalefact[i] <- 1.e-10
-              } else { wk.vscalefact[i] <- wk.vscalefact[i] } } ) # end of sapply
+                            } else { wk.vscalefact[i] <- wk.vscalefact[i] } } ) # end of sapply
 
-# returning estimates of theta to estimates of the parameters of the 
-# linear predictor for scalefact
-         wk.r.parameter <- qr.solve(covariates.matrix.scalef, (log(wk.vscalefact) - offset.scalef))
-         parameter[nparm1:npar] <- wk.r.parameter 
-                                         } # end if model.type p and scale-factor
+# returning estimates of the scale factor to estimates of the parameters 
+# of the linear predictor        
+      wk.r.parameter <- qr.solve(covariates.matrix.scalef, (log(wk.vscalefact) - offset.scalef))
+      parameter[nparm1:npar] <- wk.r.parameter 
+                                       } # end if model.type p and scale-factor
       vtheta <- as.vector(vtheta)
       names(vtheta) <- NULL
 
@@ -158,13 +160,21 @@ function(parameter,model.type,model.name,link,ntrials,
          probabilities[[i]] <- probabilities[[i]]*vfac
                                      } else {
          probabilities[[i]] <- probabilities[[i]] }} ) # end of lapply
-
-#  Total probability can be slightly greater than 1 therefore 
-#  adjusting to total and also rounding
+#  For the correlated binomial probabilities < 0 can sometimes be produced.
+#  These are relatively small i.e., of the order of 10^-15 or smaller, so rounding 
+#  such probabilities to 0.
+   probabilities <- lapply(1:nobs, function(i) { 
+      probabilities[[i]] <- sapply(1:length(probabilities[[i]]), function(j) { 
+         if (probabilities[[i]][j]<0) { 
+            probabilities[[i]][j] <- 0
+                                         } else {
+            probabilities[[i]][j] <- probabilities[[i]][j] } } ) # end of sapply
+                                         } ) # end of lapply
+#  Total probability can be slightly different from 1 therefore adjusting to total
    probabilities <- lapply(1:nobs, function(i) { 
       if ((vp[i]>0) & ((1-vp[i])>0)) {
          total.prob <- sum(as.vector(probabilities[[i]]))
-# rounding errors can cause the total probability to be slightly greater than 1
+# rounding errors can cause the total probability to be slightly different from 1
          probabilities[[i]] <- probabilities[[i]] / total.prob
                                       } else {
          probabilities[[i]] <- probabilities[[i]] } } ) # end of lapply

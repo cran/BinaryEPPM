@@ -30,13 +30,13 @@ function(object, ...) {
                          offset.p=object$offset.p,offset.scalef=object$offset.scalef)
                                                        } # end model
 
-
         if (object$model.type=="p only") { 
            wk.object <- object
            if (object$model.name=="generalized binomial") { 
 # Changing to test of b=1 for the generalized binomial
-               wk.object$coefficients[[npar]] <- 
-                             wk.object$coefficients[[npar]] - 1 } # end of generalized binomial            
+# error in version 2.0 corrected in version 2.1
+               wk.object$coefficients$scalef.est <- 
+                    wk.object$coefficients$scalef.est - 1 } # end of generalized binomial 
            coeff.table.p <- coeftest(wk.object)
            coeff.table.scalef <- NULL 
                      } else {         

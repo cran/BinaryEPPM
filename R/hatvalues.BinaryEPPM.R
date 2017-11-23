@@ -19,10 +19,10 @@ function (model, ...) {
     vone <- rep(1,length(eta))
 # inverse of link function
     p <- attr(model$link, which="p")$linkinv(eta)
-    if (model$model.name=="binomial") { 
-         scale.factor <- z
-                                 } else {
-         scale.factor <- exp(scale.factor_eta) }
+    if (model$model.name=="binomial") { scale.factor <- z
+                               } else {
+# modeling scalefactor
+          scale.factor <- exp(scale.factor_eta) }
      vvariance <- p*(vone-p)*scale.factor/model$vnmax
 # first differential of p w.r.t. eta (linear predictor)
     dmu <- attr(model$link, which="p")$mu.eta(eta)

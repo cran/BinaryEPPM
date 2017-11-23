@@ -14,7 +14,6 @@ Cribari-Neto and Zeileis (2010).
   \describe{
     \item{\code{percent}}{a numeric vector}
     \item{\code{vthousand}}{a numeric vector}
-    \item{\code{yield}}{a numeric vector}
     \item{\code{gravity}}{a numeric vector}
     \item{\code{pressure}}{a numeric vector}
     \item{\code{temp10}}{a numeric vector}

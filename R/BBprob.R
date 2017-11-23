@@ -26,8 +26,7 @@ function(twoparameter,nt) {
                        } else { numer_two <- 0 } 
       probability[i+1] <- exp(numer_one + numer_two - denom) } ) # end of sapply
                        } else {
-        if (p==0) { probability[1] <- 1 }
-        if (p==1) { probability[nt + 1] <- 1 } } # end if ((p>0) & (q>0)) 
-
+        if (p<=0) { probability[1] <- 1 }
+        if (p>=1) { probability[nt + 1] <- 1 } } # end if ((p>0) & (q>0)) 
    output <- list(probability=probability)
    return(output) }

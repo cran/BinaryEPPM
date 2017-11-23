@@ -8,8 +8,9 @@ Extract various types of predictions from BinaryEPPM regression models.
 }
 \usage{
 \method{predict}{BinaryEPPM}(object, newdata = NULL, type = c("response", 
-     "linear.predictor", "p", "scale.factor", "mean", "variance", 
-     "distribution", "distribution.parameters"), na.action = na.pass, \dots)
+     "linear.predictor.p", "linear.predictor.scale.factor",
+ "p", "scale.factor", "scale.factor.limits", "mean", 
+ "variance",   "distribution", "distribution.parameters"), na.action = na.pass, \dots)
 }
 \arguments{
   \item{object}{
@@ -21,8 +22,10 @@ the original observations are used.
 }
   \item{type}{
 character indicating type of predictions: fitted means of responses ("response"), 
-   corresponding linear predictor (linear.predictor"), fitted value of probability of success ("p"),
+   linear predictors ("linear.predictor.p", "linear.predictor.scale.factor"), 
+   fitted value of probability of success ("p"),
    fitted value of scale-factor ("scale.factor"), fitted value of mean ("mean"),
+scale factor limits ("scale.factor.limits"), 
    fitted value of variance ("variance"), fitted probability distribution ("distribution"),
    parameters of fitted distributions ("distribution.parameters")
 }
@@ -53,7 +56,7 @@ output.fn <- BinaryEPPM(data = ropespores.case,
                   number.spores / number.tested ~ 1 + offset(logdilution),
                   model.type = 'p only', model.name = 'binomial')                 
 predict(output.fn, type = "response")
-predict(output.fn, type = "linear.predictor")
+predict(output.fn, type = "linear.predictor.p")
 }
 \keyword{ methods }
 \keyword{ distribution }

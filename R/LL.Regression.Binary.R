@@ -13,9 +13,13 @@ function(parameter,model.type,model.name,link,ntrials,nsuccess,
          vsuccess    <- nsuccess[[i]] 
          log.prob <- rep(0,length(probability))
          log.prob <- sapply(1:length(probability), function(j) {
-                       if ((is.na(probability[j])==TRUE) | (probability[j]<=0)) { 
+                       if ((is.na(probability[j])==TRUE) | (probability[j]<0)) { 
                                    log.prob[j] <- -1.e+20
-                          } else { log.prob[j] <- log(probability[j]) }} ) # end of sapply
+                          } else { 
+                           if (probability[j]==0) { log.prob[j] <- 0
+                                   } else { log.prob[j] <- log(probability[j]) }} 
+                         } ) # end of sapply
+
          if (is.null(weights)==TRUE) { vlogl[i] <- t(log.prob)%*%vsuccess
                               } else {
             if (is.list(weights)==TRUE) { wk.wts <- weights[[i]]
@@ -23,5 +27,6 @@ function(parameter,model.type,model.name,link,ntrials,nsuccess,
                wk.wts <- c(rep(weights[[i]],length(vsuccess)))
                                         } # end of is.list(weights)
          vlogl[i] <- t(wk.wts*log.prob)%*%vsuccess } } ) # end of sapply
-      loglikelihood <- sum(vlogl)
+      if (sum((vlogl==0))==0) { loglikelihood <- sum(vlogl)
+                       } else { loglikelihood <- -1.e+20 } 
    return(loglikelihood) }

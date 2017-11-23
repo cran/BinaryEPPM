@@ -19,8 +19,8 @@ function(parameter,model.type,model.name,link,ntrials,
             output <- Model.JMVGB(parameter,model.name,link,ntrials,
                                covariates.matrix.p=covariates.matrix.p,
                                covariates.matrix.scalef=covariates.matrix.scalef,
-                               offset.p=offset.p,offset.scalef=offset.scalef) 
-                                         } # end of model.JMVGB
+                               offset.p=offset.p,offset.scalef=offset.scalef)
+                                         } # end of model GB
       if ((model.name=="beta binomial") | (model.name=="correlated binomial")) { 
             output <- Model.BCBinProb(parameter,model.type,model.name,link,ntrials,
                                covariates.matrix.p=covariates.matrix.p,

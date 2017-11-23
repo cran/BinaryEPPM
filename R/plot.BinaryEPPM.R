@@ -45,14 +45,13 @@ function (x, which = 1:4, caption = c("Residuals vs indices of obs.",
         mtext(caption[3], 3, 0.25)
     }
     if (show[4]) {
-        plot(predict(x, type = "linear.predictor"), res, xlab = "Linear predictor", 
+        plot(predict(x, type = "linear.predictor.p"), res, xlab = "Linear predictor", 
             ylab = Type, main = Main[4], ...)
         if (one.fig) { title(sub = sub.caption, ...) }
         mtext(caption[4], 3, 0.25)
         abline(h = 0, lty = 3, col = "gray")
     }
     if (show[5]) {
-# required for plotting multiple functions on a single figure
         qqnorm(y = as.vector(residuals.BinaryEPPM(x, type)),
                main = Main[5], xlab = "Normal quantiles", ylab = Type)
         qqline(y = as.vector(residuals.BinaryEPPM(x, type)),

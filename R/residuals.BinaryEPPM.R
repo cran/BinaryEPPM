@@ -65,6 +65,7 @@ function (object, type = c("spearson", "deviance", "pearson",
                                 } # end of for ilist loop 
                                    } # end of if object$data.type  
 
+    wk.resp.resid <- wk.resid
     if ((type=="pearson") | (type=="spearson") | (type=="likelihood")) {
        wk.resid <- wk.resid * sqrt( (wk.wts) / ( wk.p * (wk.vone - wk.p) * wk.scale.factor / wk.vnmax)) }
     if ((type=="deviance") | (type=="sdeviance") | (type=="likelihood")) {
@@ -89,7 +90,10 @@ function (object, type = c("spearson", "deviance", "pearson",
                  output.prob <- CBprob(twoparameter=c(wk.y[i], distribution.parameters[[2]][i]), wk.vnmax[i])
                  probability <- output.prob$probability
                                                     } # end of correlated binomial
-	         ll.obs[i] <- log(sum(probability*as.numeric(object$list.data[[i]]>0))) 
+                 wks <- sum(probability*as.numeric(object$list.data[[i]]>0))
+                 if (wks>0) { ll.obs[i] <- log(wks)
+                     } else { ll.obs[i] <- 0 }       
+#	         ll.obs[i] <- log(sum(probability*as.numeric(object$list.data[[i]]>0))) 
                                    } ) # end of sapply
            ll.fit <- sapply(1:nobs, function(i) { 
               if ((object$model.name=="binomial") | (object$model.name=="generalized binomial")) {
@@ -106,7 +110,9 @@ function (object, type = c("spearson", "deviance", "pearson",
                                                    distribution.parameters[[2]][i]), vnmax[i])
                  probability <- output.prob$probability
                                                     } # end of correlated binomial
-              ll.fit[i] <- log(sum(probability*as.numeric(object$list.data[[i]]>0)))
+                 wks <- sum(probability*as.numeric(object$list.data[[i]]>0))
+                 if (wks>0) { ll.fit[i] <- log(wks)
+                     } else { ll.fit[i] <- 0 }       
                                         } ) # end of sapply 
                              } else {
            wk.ind   <- c(rep(0,total.ninlist))
@@ -154,17 +160,22 @@ function (object, type = c("spearson", "deviance", "pearson",
     res <- switch(type, pearson = {
         wk.resid
     }, response = {
-        wk.resid
+        wk.resp.resid
     }, deviance = {
         wk.resid.dev
     }, likelihood = {
 # likelihood residuals
-          sqrt(wk.wts)*sign(wk.resid.dev)*sqrt( wk.resid.dev * wk.resid.dev / 
-             wk.scale.factor + hatvalues(object) * wk.resid * wk.resid / 
-             ( wk.vone - hatvalues(object) )) 
+          sqrt(wk.wts)*sign(wk.resid.dev)*sqrt( hatvalues(object)*wk.resid*wk.resid  
+                    + wk.resid.dev*wk.resid.dev ) 
     }, sdeviance = {
+          wkv <- rep(0,length(wk.resid.dev)) 
 # deviance residuals standardized to have an asymptotic variance of 1
-          wk.resid.dev / sqrt( wk.scale.factor * (wk.vone - hatvalues(object)) )
+          wkv <- sapply(1:length(wk.resid.dev), function(i) { 
+              if (wk.scale.factor[i]<=0) { wkv[i] <- wkv[i]
+                              } else { wkv[i] <-
+                  wk.resid.dev[i] / sqrt( wk.scale.factor[i] * (1 - hatvalues(object)[i]) )
+                                     } } ) 
+          wkv
     }, spearson = {
 # Pearson residuals standardized to have an asymptotic variance of 1
           wk.resid / sqrt( wk.vone - hatvalues(object) )

@@ -4,6 +4,16 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
                   link="cloglog",initial=NULL,method="Nelder-Mead",
                   pseudo.r.squared.type="square of correlation",control=NULL) {
 
+# Checking for correct combinations of model.type and model.name
+   if (model.name=="binomial") { 
+      if (model.type!="p only") { model.type <- "p only"
+         cat("\n","model.type for binomial set to p only","\n") } # end p only
+                        } else {
+      if ((model.name!="generalized binomial") & (model.name!="beta binomial") &
+          (model.name!="correlated binomial")) {
+         cat("\n","unknown model.name for this model.type","\n")
+         return(object=NULL) } } # end if binomial                       
+
 # Checking that data is data.frame or list.
    if ((is.data.frame(data)==FALSE) & (is.list(data)==FALSE)) { 
       cat("\n","Input data is neither data frame nor list.","\n")
@@ -12,28 +22,31 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
     cl <- match.call()
 
 # link functions
-      if (link=="powerlogit") { 
-         if (is.null(attr(link, which="power"))==TRUE) {
-            attr(link, which="power") <- 1 
-                    } else {
-            if ((is.finite(attr(link, which="power"))==FALSE) | 
-                ((attr(link, which="power")<0)==TRUE)) {
-               cat("\n","non finite or <0 power, reset to 1","\n")
-               attr(link, which="power") <- 1 }} } # end if link=powerlogit
+    if (link=="powerlogit") { 
+       if (is.null(attr(link, which="power"))==TRUE) {
+          attr(link, which="power") <- 1 
+                  } else {
+          if ((is.finite(attr(link, which="power"))==FALSE) | 
+              ((attr(link, which="power")<0)==TRUE)) {
+             cat("\n","non finite or <0 power, reset to 1","\n")
+             attr(link, which="power") <- 1 }} } # end if link=powerlogit
 
-# Checking for correct link function
+# Checking for correct link functions
    if ((link!="logit") & (link!="probit") & (link!="cloglog") & 
        (link!="cauchit") & (link!="log") & (link!="loglog") & 
-       (link!="doubexp") & (link!="doubrecip") & (link!="powerlogit")) {
+       (link!="doubexp") & (link!="doubrecip") & (link!="powerlogit") & 
+       (link!="negcomplog")) {
        cat("\n","unknown link function","\n")
        return(object=NULL) 
            } else {
        if ((link=="doubexp") | (link=="doubrecip") | 
-           (link=="powerlogit") | (link=="loglog")) {
+           (link=="powerlogit") | (link=="loglog") |
+           (link=="negcomplog")) {
           if (link=="loglog")     { attr(link, which="p") <- loglog() }
           if (link=="doubexp")    { attr(link, which="p") <- doubexp() }
           if (link=="doubrecip")  { attr(link, which="p") <- doubrecip() }
           if (link=="powerlogit") { attr(link, which="p") <- powerlogit(power=attr(link, which="power")) }
+          if (link=="negcomplog")  { attr(link, which="p") <- negcomplog() }
                                 } else {
           attr(link, which="p") <- make.link(link) } } #end of if link
 
@@ -47,6 +60,12 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
     FBoth <- Formula(formula) 
     lenFB <- length(FBoth) 
     mf[[1L]] <- as.name("model.frame")
+
+# name of response variable
+    wk.name <- attr(FBoth, which="lhs") 
+    if (length(wk.name)>1) {
+       cat("\n","more than one variable name on lhs of the formula","\n")
+       return(object=NULL) }
 
 # data.frame or list
 
@@ -68,7 +87,11 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
       if (nvar==1) { covariates  <- NULL
                    } else { covariates <- data } 
       list.data  <- lapply(1:nobs, function(i) {
-                            c(rep(0,resp.var[i]),1,rep(0,(n.var[i]-resp.var[i]))) })
+         if (((resp.var[i]>0)==TRUE) & ((resp.var[i]<n.var[i])==TRUE)) { 
+                            c(rep(0,resp.var[i]),1,rep(0,(n.var[i]-resp.var[i])))
+                                       } else {
+            if ((resp.var[i]==0)==TRUE) { c(1,rep(0,n.var[i])) }
+            if ((resp.var[i]==n.var[i])==TRUE) { c(rep(0,n.var[i]),1) } }}) # end of lapply
       p.obs        <- resp.var / n.var
       scalef.obs   <- rep(1,nobs)
       mean.obs     <- resp.var
@@ -89,23 +112,32 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 
 # list of frequency distributions input
       data.type <- FALSE
-# Checking formula and data
 
+# Checking for name of dependent variable in list of data
+      wk.name <- attr(FBoth, which="lhs") 
       nvar <- length(data)
       nobs <- length(data[[1]])
       if (nvar==1) { covariates  <- NULL }
 
       if ((nvar==1) & (is.list(data[[1]])==TRUE)) { 
-                   list.data <- data[[1]]
+         if ((wk.name==names(data)[1])==TRUE) {
+              list.set <- TRUE
+              list.data <- data[[1]]
+                                       } else {          
+              cat("\n","single list with list of data is not named ",wk.name,"\n")
+              return(object=NULL) } # end of if wk.name==names(data)[1]
           } else { list.set <- FALSE
                    for ( i in 1:nvar ) { 
-            if (is.list(data[[i]])==TRUE)  { 
-               if (list.set==TRUE)  { 
-                  cat("\n","More than one list within list of data so","\n")
-                  cat("not clear which is the dependent variable.","\n")
-                                      return(object=NULL)
-                             } else { list.data <- data[[i]] 
-                                      list.set <- TRUE } # end of list.set==TRUE
+            if (is.list(data[[i]])==TRUE) { 
+               if ((wk.name==names(data)[i])==TRUE) { 
+                  if (list.set==TRUE)  { 
+                     cat("\n","More than one list named ",wk.name," within list of data so","\n")
+                     cat("not clear which is the dependent variable.","\n")
+                                         return(object=NULL)
+                                } else { list.data <- data[[i]] 
+                                         list.set <- TRUE } # end of list.set==TRUE
+                                                    } # end of wk.name==names(data)[i]
+
                                        } else { 
                             if (i==1) { covariates <- data.frame(data[1])
                                         names(covariates[1]) <- names(data[1])                   
@@ -119,6 +151,9 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
                                                names(covariates[wks]) <- names(data[i])  
                                                            }}} } # end for loop
                                                  } # end if nvar==1 & is.list
+      if (list.set==FALSE) { 
+         cat("\n","No list named ",wk.name," within list of data.","\n")
+         return(object=NULL) } # end of if list.set==FALSE
 
       mean.obs     <- rep(0,nobs)
       variance.obs <- rep(0,nobs)
@@ -137,7 +172,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
          if (p.obs[i]==0) { p.obs[i] <- 1.e-10 }
          if (p.obs[i]==1) { p.obs[i] <- 1 - 1.e-10 }
          variance.obs[i] <- (t(cnum*cnum)%*%count - ncount*mean.obs[i]*mean.obs[i]) / (ncount - 1)
-         scalef.obs[i]   <- variance.obs[i] / (mean.obs[i]*(1-p.obs[i]))
+         scalef.obs[i] <- variance.obs[i] / (mean.obs[i]*(1-p.obs[i]))
          if (is.finite(variance.obs[i])==FALSE) { variance.obs[i] <- 0 } 
          if (is.finite(scalef.obs[i])==FALSE) { scalef.obs[i] <- 1 } 
                     } # end of for loop
@@ -153,52 +188,31 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
       if (is.null(attr(weights, which="normalize"))==TRUE) {
          attr(weights, which="normalize") <- FALSE }
 
-      if (data.type==TRUE) {
-         if (attr(weights, which="normalize")==TRUE) {
-            if (is.null(attr(weights, which="norm.to.n"))==TRUE) {
+      if (attr(weights, which="normalize")==TRUE) {
+         if (is.null(attr(weights, which="norm.to.n"))==TRUE) {
             wkv <- c(rep(0, nobs))
             wkv <- sapply(1:nobs, function(i) { 
                       wkv[i] <- sum(list.data[[i]]) } ) # end of sapply 
             attr(weights, which="norm.to.n") <- sum(wkv) }}
-
-                          } else {
-
-         if (attr(weights, which="normalize")==TRUE) {
-            if (is.null(attr(weights, which="norm.to.n"))==TRUE) {
-            wkv <- c(rep(0, nobs))
-            wkv <- sapply(1:nobs, function(i) { 
-                      wkv[i] <- sum(list.data[[i]]) } ) # end of sapply 
-            attr(weights, which="norm.to.n") <- sum(wkv) }}
-
-                               } # end of if data.type
 
 # normalizing weights 
 
       if (is.null(attr(weights, which="normalize"))==TRUE) { 
           attr(weights, which="normalize") <- FALSE }
 
-      if (data.type==TRUE) {
-
-         if (attr(weights, which="normalize")==TRUE) {
-            wkv <- c(rep(0, nobs))
-            wkv <- sapply(1:nobs, function(i) { 
-                      wkv[i] <- sum(list.data[[i]]) } ) # end of sapply 
-            if (is.null(attr(weights, which="norm.to.n"))==TRUE) {
-                  attr(weights, which="norm.to.n") <- sum(wkv) }
-            weights <- as.numeric(attr(weights, which="norm.to.n"))*weights/sum(wkv) }
-
-                        } else {
-
-         if (attr(weights, which="normalize")==TRUE) {
-            wkv <- c(rep(0, nobs))
-            wkv <- sapply(1:nobs, function(i) { 
-                      wkv[i] <- sum(list.data[[i]]) } ) # end of sapply 
-            if (is.null(attr(weights, which="norm.to.n"))==TRUE) {
+      if (attr(weights, which="normalize")==TRUE) {
+         wkv <- c(rep(0, nobs))
+         wkv <- sapply(1:nobs, function(i) { 
+                   wkv[i] <- sum(list.data[[i]]) } ) # end of sapply 
+         if (is.null(attr(weights, which="norm.to.n"))==TRUE) {
                attr(weights, which="norm.to.n") <- sum(wkv) }
+         if (data.type==TRUE) {
+            weights <- as.numeric(attr(weights, which="norm.to.n"))*weights/sum(wkv)
+                     } else {
             weights <- lapply(1:nobs, function(i) { weights[[i]] <-  
-                       as.numeric(attr(weights, which="norm.to.n"))*weights[[i]]/sum(wkv)
-                       } ) # end of lapply
-                                                  } } # end of if data.type
+                       as.numeric(attr(weights, which="norm.to.n"))*weights[[i]]/sum(wkv) } ) # end of lapply
+                            } } # end if(attr(weights,
+
 				  } # end is.null(weights) 
 
    mf$data <- wkdata
@@ -239,7 +253,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 # when model type is p and scale-factor 
    wkdata <- subset(wkdata, select=((names(wkdata)!="(resp.var)") &
                                     (names(wkdata)!="Row.names")))
- 
+
 # subsetting mean.obs, variance.obs if subset in operation
    if (is.null(subset)==FALSE) { 
       p.obs        <- p.obs[subset]
@@ -248,10 +262,11 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
       scalef.obs   <- scalef.obs[subset] 
       weights      <- weights[subset] 
       vnmax        <- vnmax[subset]
-      resp.var     <- resp.var[subset]
-      n.var        <- n.var[subset]
 # list.data also needs to be subsetted 
-      list.data <- list.data[subset] } # end of is.null(subset)
+      list.data <- list.data[subset]
+# following inserted 7th July 2017 to handle an error resulting when list input is used
+      if (data.type==TRUE) { resp.var     <- resp.var[subset] 
+         n.var        <- n.var[subset] } } # end of is.null(subset)
 
 # if data frame adding in the two variables resp.var & n.var to the data frame
 # for use calculating initial estimates with glm
@@ -261,8 +276,9 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 # Resetting nobs if subset is being used
       if (is.null(subset)==FALSE) { nobs <- length(wkdata[[1]]) }
 
-# Checking if offset involved and if it is adding the offset variable to workdata so that 
+# Checking if offset.var involved and if it is adding it to workdata so that 
 # both variables offset(****) and **** are in the data frame in order to use offsets in glm 
+# N.B. DO NOT USE THE NAME offset.*** as an offset name in the data sets input
     offset.var <- NULL
     wks <- length(wkdata)
     for ( i in 1:wks) { nchar <- nchar(names(wkdata[i]))
@@ -270,9 +286,9 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
                          (substr(names(wkdata[i]), 1, 7)=="offset.")==TRUE)) { 
              offset.var <- wkdata[i]
              names(offset.var) <- substr(names(wkdata[i]), 8, (nchar-1))
+             wkdata <- data.frame(wkdata, offset.var)
                        } } # end of for i
-    if (is.null(offset.var)==FALSE) { 
-        wkdata <- data.frame(wkdata, offset.var) } # end if is.null offset.var
+
     vone         <- rep(1,nobs)
 # link function
     lp.obs <- attr(link, which="p")$linkfun(p.obs)
@@ -280,7 +296,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 # Adding lp.obs the linear predictor to wk.data. This is needed for initial estimates
 # of parameters when initial not set and links doubexp, doubrecip and power logit used.
     if ((is.null(initial)==TRUE) & ((link=="doubexp") | 
-        (link=="doubrecip") | (link=="powerlogit"))) {
+        (link=="doubrecip") | (link=="powerlogit") | (link=="negcomplog"))) {
          wkdata <- data.frame(wkdata, lp.obs) } # end if is.null initial & link
 
 # Changing offsets" names from offset.xxx. to offset(xxx)
@@ -332,18 +348,6 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 # setting wk.terms
    wk.terms <- list(p=terms.p,scale.factor=terms.scalef,full=terms.full)
 
-# Checking for correct combinations of model.type and model.name
-   if (model.type=="p only") {
-      if ((model.name!="binomial") & (model.name!="generalized binomial") &
-          (model.name!="beta binomial") & (model.name!="correlated binomial")) {
-         cat("\n","unknown model.name for this model.type","\n")
-         return(object=NULL) } }
-   if (model.type=="p and scale-factor") {
-      if ((model.name!="generalized binomial") & (model.name!="beta binomial") &
-          (model.name!="correlated binomial")) {
-         cat("\n","unknown model.name for this model.type","\n")
-         return(object=NULL) } }
-
 # Checking that list.data is a list  
 if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n") 
    return(object=NULL) }
@@ -356,6 +360,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
 
 # extracting offsets and model matrices 
    p.mf <- model.frame(formula(FBoth,lhs=1,rhs=1), data=wkdata)
+
 # The following command seems to have problems with handling a variable
 # named class. This was the original name of the variable in the Titanic
 # data. When changed to pclass there were no problems.
@@ -421,14 +426,11 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
 # switching off warnings from glm usually caused by non integer values for the counts
             options(warn=-1)
             glm.Results <- glm(formula(FBoth,lhs=2,rhs=2),family=gaussian(link="log"),
-                               subset=(scalef.obs>0), data=wkdata) 
+                                subset=(scalef.obs>0), data=wkdata) 
             initial.scalef <- coefficients(glm.Results)
 # switching warnings from glm back on
             options(warn=0)                       
-            if ((model.name=="beta binomial") | (model.name=="correlated binomial")) {
-               parameter <- c(initial.p,rep(0,length(glm.Results$coefficients))) 
-                           } else {
-               parameter <- c(initial.p,initial.scalef) } # end of if beta, correlated binomial
+            parameter <- c(initial.p,initial.scalef)
             names(parameter) <- c(names(initial.p),names(initial.scalef)) 
             numpar <- length(parameter) } # of if model.type p and scale-factor
                                    } else {
@@ -451,6 +453,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
          return(object=NULL) }
    npar.p      <- ncol(covariates.matrix.p)
    npar.scalef <- ncol(covariates.matrix.scalef)
+
    if (model.type=="p only") {
       npar <- npar.p 
       if (model.name!="binomial") { npar <- npar + 1 }}
@@ -467,13 +470,12 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
       r.parameter.p <- rep(0,npar.p) 
       r.parameter.p <- parameter[1:npar.p] 
       lp.p <- covariates.matrix.p%*%r.parameter.p + offset.p
-# log-linear function for variance 
+# link function for variance 
       if (model.type=="p and scale-factor") { 
          r.parameter.scalef <- rep(0,npar.scalef) 
          wks <- npar.p + 1
          r.parameter.scalef <- parameter[wks:npar] 
-         lp.scalef <- covariates.matrix.scalef%*%r.parameter.scalef + 
-                        offset.scalef } # end of if statement
+         lp.scalef <- covariates.matrix.scalef%*%r.parameter.scalef + offset.scalef } # end of if statement
 
       if ((pseudo.r.squared.type!="square of correlation") & (pseudo.r.squared.type!="R squared") & 
           (pseudo.r.squared.type!="max-rescaled R squared")) {
@@ -508,7 +510,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                    alpha=1.0,beta=0.5,gamma=2.0,REPORT=10) 
                                } else { 
 # Control parameters related to Nelder-Mead except for REPORT which
-# is for BFGS. Those related only other methods of optim are considered to 
+# is for BFGS. Those related only to other methods of optim are considered to 
 # be unknown and ignored.
      ncontrol <- length(control)
      wk.control <- list(fnscale=-1,trace=0,maxit=1000,abstol=1e-8,reltol=1e-8,
@@ -553,22 +555,57 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                      } else {
           if (method=="Nelder-Mead") { gr.fun <- NULL 
                                  } else { gr.fun <- LL.gradient }              
-          Results  <- optim(parameter,fn=LL.Regression.Binary,gr=gr.fun,
+          wk.optim <- optim(parameter,fn=LL.Regression.Binary,gr=gr.fun,
                             model.type,model.name,link,ntrials,nsuccess,
                             covariates.matrix.p,covariates.matrix.scalef,
                             offset.p,offset.scalef,weights,grad.method,
                             method=method,control=control,hessian=FALSE) 
-          if (Results$convergence==0) { converged <- TRUE 
+          if (wk.optim$convergence==0) { converged <- TRUE 
                                } else { converged <- FALSE } 
-          attr(converged, which="code") <- Results$convergence                            
-          wk.optim <- Results
-                                     } # end of if length(parameter)=1 
+          attr(converged, which="code") <- wk.optim$convergence 
+
+# The parameter estimates returned from a new call to Model.Binary being different
+# from those used as input to the new call to Model.Binary is an indication
+# that a limit has been reached. In Model.Binary the distribution parameters are 
+# set to the limiting values when those limiting values are reached. 
+# Checking for whether scale factor pdistribution parameters are on their limits
+# using a comparison of parameter values.
+          iprt <- 0
+          for ( i in 1:100) { check.optim.par <- 
+             Model.Binary(wk.optim$par,model.type,model.name,link,ntrials,
+                          covariates.matrix.p,covariates.matrix.scalef,
+                          offset.p,offset.scalef)$parameter
+             if (max(abs(check.optim.par-wk.optim$par))>1.e-12) { iprt <- 1
+                wk.optim$par <- check.optim.par 
+                                        } else { break } } # end of for loop
+          wk.optim$value <- LL.Regression.Binary(parameter=wk.optim$par,
+                               model.type,model.name,link,ntrials,nsuccess,
+                               covariates.matrix.p,covariates.matrix.scalef,
+                               offset.p,offset.scalef,weights,grad.method)
+          if (iprt>0) {
+             if (model.name=="generalized binomial") { 
+                if (model.type=="p only") { cat("The parameter b=0 showing that the variance","\n") 
+                   cat("has reached the Poisson boundary hence its se is set to NA.","\n")
+                         } else { cat("The parameter b=0 for some observations showing that","\n") 
+                                  cat("the variance has reached the Poisson boundary.","\n") }
+                                } # end of if model
+             if (model.name=="beta binomial") { 
+                if (model.type=="p only") { cat("The value of theta is less than the lower limit","\n") 
+                   cat("for some observations hence its se is set to NA.","\n") 
+                         } else { cat("The values of theta for some observations are less","\n") 
+                                  cat("than the lower limits.","\n") } } # end of if model
+             if (model.name=="correlated binomial") { 
+                if (model.type=="p only") { cat("The value of rho is outside the lower to upper limit","\n") 
+                                            cat("range for some observations hence its se is set to NA.","\n") 
+                         } else { cat("The values of rho for some observations are","\n") 
+                                  cat("outside the lower to upper limit range.","\n") } } } # end of if iprt==1
+                                 } # end of if length(parameter)=1 
           names(wk.optim$par) <- names(parameter) 
+
           nobs <- nrow(covariates.matrix.p) 
           p.par        <- rep(0,nobs)
           scalef.par   <- rep(1,nobs)
           scalef.limit <- rep(0,nobs)
-          exceed.limit <- rep(0,nobs)
 # Calculation of p and means from parameter estimates and design matrices
           npar.p      <- ncol(covariates.matrix.p)
           r.parameter.p <- rep(0,npar.p) 
@@ -576,42 +613,13 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
 
 # inverse of link function
           p.par <- attr(link, which="p")$linkinv(lp.p)
-
-# The wk.estimates returned from Model.Binary being different from those entering 
-# (estimates) is an indication that a limit has been reached.
-# In Model. Binary the distribution parameters are set to the limiting values when
-# those limiting values are reached.
-    
-          Dparameters  <- Model.Binary(wk.optim$par,model.type,model.name,link,ntrials,
-                                 covariates.matrix.p,covariates.matrix.scalef,
-                                 offset.p,offset.scalef)$Dparameters
-  
-# checking that parameters are within limits for generalized, beta and correlated binomials
           if (model.type=="p only") { 
              npar  <- npar.p + 1
              if (model.name=="binomial") { 
                 wkv.coefficients <- list(p.est=wk.optim$par[1:npar.p], scalef.est=NULL)
                                    } else { 
                 wkv.coefficients <- list(p.est=wk.optim$par[1:npar.p], scalef.est=wk.optim$par[npar]) }
-             if (model.name=="generalized binomial") { 
-# maximum variance restricted to Poisson i.e., variance=mean
-                exceed.limit <- sapply(1:nobs, function(i) 
-                             if (Dparameters$vb[i]<=0) { exceed.limit[i] <- 1
-                                } else { exceed.limit[i] <- 0 } ) } # end if model
-             if ((model.name=="beta binomial") | (model.name=="correlated binomial"))
-                { theta.llimit <- Dparameters$lower.limit
-                  npar <- npar.p + 1
-                  vtheta <- rep(wk.optim$par[npar],nobs)
-                  exceed.limit <- sapply(1:nobs, function(i) 
-                            if (vtheta[i]<=theta.llimit[i]) { exceed.limit[i] <- 1
-                                                     } else { exceed.limit[i] <- 0 } )
-                  if (model.name=="correlated binomial") { 
-                     theta.ulimit <- Dparameters$upper.limit 
-                     exceed.limit <- sapply(1:nobs, function(i) 
-                            if (vtheta[i]>=theta.ulimit[i]) { exceed.limit[i] <- 1
-                                                     } else { exceed.limit[i] <- exceed.limit[i] } ) }
-             } # end model.name=beta or correlated
-                                                     } # if model.type
+                                    } # if model.type
 
           if (model.type=="p and scale-factor") { 
 # Calculation of scale-factors and variances from parameter estimates and design matrices
@@ -619,46 +627,14 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
              npar <- npar.p + npar.scalef
              wks <- npar.p + 1
              wkv.coefficients <- list(p.est=wk.optim$par[1:npar.p], scalef.est=wk.optim$par[wks:npar]) 
-# log-linear function for scale-factor 
+# inverse link for scale-factor 
              r.parameter.scalef <- rep(0,npar.scalef) 
-             scalef.par   <- exp(covariates.matrix.scalef%*%r.parameter.scalef + 
-                                      offset.scalef)
-             if (model.name=="generalized binomial") { 
-# maximum variance restricted to Poisson i.e., variance=mean
-                exceed.limit <- sapply(1:nobs, function(i) 
-                             if (Dparameters$vb[i]<=0) { exceed.limit[i] <- 1
-                                } else { exceed.limit[i] <- 0 } ) } # end if model
-             if ((model.name=="beta binomial") | (model.name=="correlated binomial"))
-                { vtheta <- p.par*(vone-p.par)*scalef.par/(vnmax-vone)
-                  theta.llimit <- Dparameters$lower.limit
-                  exceed.limit <- sapply(1:nobs, function(i) 
-                            if (vtheta[i]<=theta.llimit[i]) { exceed.limit[i] <- 1
-                                                     } else { exceed.limit[i] <- 0 } )
-                  if (model.name=="correlated binomial") { 
-                     theta.ulimit <- Dparameters$upper.limit 
-                     exceed.limit <- sapply(1:nobs, function(i) 
-                            if (vtheta[i]>=theta.ulimit[i]) { exceed.limit[i] <- 1
-                                                     } else { exceed.limit[i] <- exceed.limit[i] } ) }
-                } # end model beta or correlated
-                                                 } # if model.type
-
-          ind.exceed.limit <- 0
-          if ((model.name=="generalized binomial") & (sum(exceed.limit)>0)) { ind.exceed.limit <- 1
-             if (model.type=="p only") { cat("The parameter b=0 showing that the variance","\n") 
-                cat("has reached the Poisson boundary hence its se is set to NA.","\n")
-                      } else { cat("The parameter b=0 for some observations showing that","\n") 
-                               cat("the variance has reached the Poisson boundary.","\n") }
-                             } # end of if model
-          if ((model.name=="beta binomial") & (sum(exceed.limit)>0)) { ind.exceed.limit <- 1
-             if (model.type=="p only") { cat("The value of theta is less than the lower limit","\n") 
-                cat("for some observations hence its se is set to NA.","\n") 
-                      } else { cat("The values of theta for some observations are less","\n") 
-                               cat("than the lower limits.","\n") } } # end of if model
-          if ((model.name=="correlated binomial") & (sum(exceed.limit)>0)) { ind.exceed.limit <- 1
-             if (model.type=="p only") { cat("The value of rho is outside the lower to upper limit","\n") 
-                                         cat("range for some observations hence its se is set to NA.","\n") 
-                      } else { cat("The values of rho for some observations are","\n") 
-                               cat("outside the lower to upper limit range.","\n") } } # end of if model
+             denom <- rep(0,nobs)
+             denom <- sapply(1:nobs, function(i) denom[i] <- max(ntrials[[i]]) )
+# modeling scalefactor
+             vsf  <- as.vector(covariates.matrix.scalef%*%r.parameter.scalef + offset.scalef)
+             scalef.par <- exp(vsf)
+                                              } # if model.type
 
 # model.hessian from hessian from numDeriv method Richardson
           model.hessian <- hessian(LL.Regression.Binary,
@@ -713,7 +689,10 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
           if (nobs>1) {
              if (pseudo.r.squared.type=="square of correlation") {
 # as in betareg
-                eta <- as.vector(covariates.matrix.p %*% wkv.coefficients$p.est + offset.p)
+                if (npar.p>0) {
+                   eta <- as.vector(covariates.matrix.p %*% wkv.coefficients$p.est + offset.p)
+                        } else {
+                   eta <- offset.p }
 # link function
                 lp.obs <- attr(link, which="p")$linkfun(p.obs)
                 eta <- sapply(1:nobs, function(i) {
@@ -725,7 +704,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                 if ((sd(eta, na.rm=TRUE)>0) & (sd(lp.obs, na.rm=TRUE)>0)) { 
                      pseudo.r.squared <- cor(eta, lp.obs, use="complete.obs")^2 
                               } else {
-                     cat("One or both of observed or fitted linear predictor has 0 sd.","\n")
+#                     cat("One or both of observed or fitted linear predictor has 0 sd.","\n")
                      pseudo.r.squared <- NA } } # end of if square of correlation
             if ((pseudo.r.squared.type=="R squared") | (pseudo.r.squared.type=="max-rescaled R squared")) {
 # calculation of pseudo R squared as the generalized coefficient of determination 
@@ -786,4 +765,5 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                        control=control, fitted.values=p.prob, y=p.obs, terms=wk.terms) 
 
      attr(object, "class") <- c("BinaryEPPM")
+
      return(object) }
