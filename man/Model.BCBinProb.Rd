@@ -85,7 +85,7 @@ Williams D (1996). Overdispersion in logistic linear models. In B Morgan (ed.),
 Statistics in Toxicology, 75-84. Oxford Science Publications.
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \examples{
 link <- 'cloglog'

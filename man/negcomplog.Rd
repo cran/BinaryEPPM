@@ -16,6 +16,6 @@ The negative complementary log-log of theta.
 Tibshirani RJ, Ciampi A (1983). "A Family of Proportional- and Additive-Hazards Models for Survival Data". Biometrics 39(1), 141-147.
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \keyword{ models }

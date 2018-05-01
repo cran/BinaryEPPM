@@ -39,13 +39,46 @@ function (x, which = 1:4, caption = c("Residuals vs indices of obs.",
         mtext(caption[2], 3, 0.25)
     }
     if (show[3]) {
-        plot(fitted(x), hatvalues.BinaryEPPM(x), xlab = "Predicted values", 
+       if (x$data.type==TRUE) {
+          fitted.values <- fitted.BinaryEPPM(x)
+                            } else {
+          fitted.values <- c(rep(0,n))
+          nstart <- 1
+          nend <- 0
+          for (ilist in 1:length(fitted.BinaryEPPM(x))) { 
+             ninlist <- sum(x$list.data[[ilist]])
+             for ( i in 1:length(x$list.data[[ilist]])) { 
+                nt <- x$list.data[[ilist]][i] 
+                if (nt>0) {
+                   nend <- nend + nt
+                   fitted.values[nstart:nend] <- fitted.BinaryEPPM(x)[ilist]
+                   nstart <- nstart + nt } } # end of for i loop
+                                   } # end of for ilist loop 
+                                      } # end of if x$data.type  
+        plot(fitted.values, hatvalues.BinaryEPPM(x), xlab = "Predicted values", 
             ylab = "hatvalues as leverage", main = Main[3], ...)
         if (one.fig) { title(sub = sub.caption, ...) }
         mtext(caption[3], 3, 0.25)
     }
     if (show[4]) {
-        plot(predict(x, type = "linear.predictor.p"), res, xlab = "Linear predictor", 
+       if (x$data.type==TRUE) {
+          linear.predictor <- predict(x, type = "linear.predictor.p")
+                            } else {
+          linear.predictor <- c(rep(0,n))
+          nstart <- 1
+          nend <- 0
+          for (ilist in 1:length(predict(x, type = "linear.predictor.p"))) { 
+             ninlist <- sum(x$list.data[[ilist]])
+             for ( i in 1:length(x$list.data[[ilist]])) { 
+                nt <- x$list.data[[ilist]][i] 
+                if (nt>0) {
+                   nend <- nend + nt
+                   linear.predictor[nstart:nend] <- predict(x, type = "linear.predictor.p")[ilist]
+                   nstart <- nstart + nt } } # end of for i loop
+                                   } # end of for ilist loop 
+                                      } # end of if x$data.type  
+
+        plot(linear.predictor, res, xlab = "Linear predictor", 
             ylab = Type, main = Main[4], ...)
         if (one.fig) { title(sub = sub.caption, ...) }
         mtext(caption[4], 3, 0.25)

@@ -31,10 +31,10 @@ One of a set of standard extractor functions for fitted model objects of class
 Vector of coefficients of fitted regression model.
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \seealso{
-\code{\link[betareg]{coef.betareg}} 
+\code{\link[betareg]{betareg}} 
 }
 \examples{
 data("ropespores.case")

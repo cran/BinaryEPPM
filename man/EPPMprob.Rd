@@ -34,6 +34,6 @@ Smith D, Faddy M (2014). CountsEPPM: Mean and Variance Modeling of Count Data.
 R package version 2.0, \url{https://CRAN.R-project.org/package=CountsEPPM}. 
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \keyword{ distribution }

@@ -181,7 +181,7 @@ Zeileis A, Croissant Y. (2010). Extended Model Formulas in R: Multiple Parts and
 \code{\link[betareg]{betareg}} 
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \examples{
 data("ropespores.case") 

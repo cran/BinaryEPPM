@@ -34,6 +34,6 @@ Cribari-Neto F, Zeileis A. (2010). Beta Regression in R.
 \emph{Journal of Statistical Software}, \bold{34}(2), 1-24. \doi{10.18637/jss.v034.i02}.
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \keyword{ models }

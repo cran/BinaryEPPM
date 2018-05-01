@@ -14,7 +14,7 @@ Calculates Cook's distances for BinaryEPPM objects.
 fitted model object of class "BinaryEPPM".
 }
   \item{\dots}{
-some mthods for this generic function require additional arguments.
+some methods for this generic function require additional arguments.
 }
 }
 \details{
@@ -28,10 +28,10 @@ Cribari-Neto F, Zeileis A. (2010). Beta Regression in R.
 \emph{Journal of Statistical Software}, \bold{34}(2), 1-24. \doi{10.18637/jss.v034.i02}.
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \seealso{
-\code{\link[betareg]{cooks.distance.betareg}} 
+\code{\link[betareg]{betareg}} 
 }
 \examples{
 data("ropespores.case") 

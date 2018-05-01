@@ -14,6 +14,11 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
          cat("\n","unknown model.name for this model.type","\n")
          return(object=NULL) } } # end if binomial                       
 
+# Checking method 
+   if ((method!="Nelder-Mead") & (method!="BFGS")) {
+       cat("\n","unknown function optim method","\n")
+       return(object=NULL) }
+
 # Checking that data is data.frame or list.
    if ((is.data.frame(data)==FALSE) & (is.list(data)==FALSE)) { 
       cat("\n","Input data is neither data frame nor list.","\n")
@@ -179,7 +184,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 
 # Checking for no covariates 
       if (is.null(covariates)==TRUE) { wkdata <- data.frame(p.obs,scalef.obs) 
-                    } else { wkdata <- data.frame(p.obs,scalef.obs,covariates) }
+                              } else { wkdata <- data.frame(p.obs,scalef.obs,covariates) }
 
                             }  # end of if is.data.frame
 
@@ -344,9 +349,6 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
                              } else { 
       terms.scalef <- terms(formula(FBoth,lhs=2,rhs=2)) } # end of if model.type
    terms.full   <- terms(formula(FBoth))
-
-# setting wk.terms
-   wk.terms <- list(p=terms.p,scale.factor=terms.scalef,full=terms.full)
 
 # Checking that list.data is a list  
 if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n") 
@@ -753,16 +755,28 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                    } else { pseudo.r.squared <- NA } } # end of if ((sum(vnmax)==length(vnmax))
          attr(pseudo.r.squared, which="names") <- pseudo.r.squared.type
 
+# For the list data type (frequency distribution of data) the degrees of freedom
+# for null and residual need to be set to those of the data frame data type
+
+        if (data.type==TRUE) { total.ninlist <- nobs
+                      } else {
+           vninlist <- c(rep(0,length(list.data)))
+           vninlist <- sapply(1:length(list.data), function(ilist) 
+                             vninlist[ilist] <- sum(list.data[[ilist]]) )
+           total.ninlist <- sum(vninlist)
+                             } # end of is.data.frame
+
          object <- list(data.type=data.type, list.data=list.data, call=cl, 
                        formula=formula, model.type=model.type, model.name=model.name, 
                        link=link, covariates.matrix.p=covariates.matrix.p,
                        covariates.matrix.scalef=covariates.matrix.scalef,
                        offset.p=offset.p,offset.scalef=offset.scalef,
                        coefficients=wkv.coefficients,loglik=wk.optim$value,vcov=vcov,
-                       n=nobs, nobs=nobs, df.null=nobs, df.residual=(nobs-length(wk.optim$par)),
+                       n=nobs, nobs=nobs, df.null=total.ninlist, df.residual=(total.ninlist-length(wk.optim$par)),
                        vnmax=vnmax, weights=weights,converged=converged, method=method,
                        pseudo.r.squared=pseudo.r.squared, start=start, optim=wk.optim,
-                       control=control, fitted.values=p.prob, y=p.obs, terms=wk.terms) 
+                       control=control, fitted.values=p.prob, y=p.obs,
+                       terms=list(p=terms.p,scale.factor=terms.scalef,full=terms.full)) 
 
      attr(object, "class") <- c("BinaryEPPM")
 

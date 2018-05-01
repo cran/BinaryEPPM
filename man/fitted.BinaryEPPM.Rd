@@ -21,6 +21,6 @@ currently not used.
 \code{\link[stats:stats-package]{fitted}} 
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \keyword{ methods }

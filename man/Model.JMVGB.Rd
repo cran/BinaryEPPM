@@ -85,7 +85,7 @@ Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
 \doi{10.1002/bimj.201100214}.
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \examples{
 link <- 'cloglog'

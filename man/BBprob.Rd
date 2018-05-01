@@ -29,7 +29,7 @@ Williams D (1996). "Overdispersion in Logistic Linear Models." In B Mrgan (ed.),
 Statistics in Toxicology, pp75-84. Oxford Science Publications.
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \examples{
 twoparameter <- c(0.96477815,0.7561417)

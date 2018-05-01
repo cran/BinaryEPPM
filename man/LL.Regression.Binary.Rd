@@ -80,7 +80,7 @@ is simple.
 The log likelihood is returned.
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \references{
 Faddy M, Smith D. (2012). Extended Poisson Process Modeling and 

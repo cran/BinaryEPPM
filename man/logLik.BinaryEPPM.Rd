@@ -24,9 +24,9 @@ logLik is most commonly used for a model fitted by maximum likelihood as is done
 The log likelihood value for the fitted model object.
 }
 \seealso{
-\code{\link[betareg]{logLik.betareg}} 
+\code{\link[betareg]{betareg}} 
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \keyword{ methods }

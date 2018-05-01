@@ -86,7 +86,7 @@ Gilbert P, Varadhan R. (2015). numDeriv: Accurate Numerical Derivatives. R Packa
 \url{https://CRAN.R-project.org/package=numDeriv}.
 }
 \author{
-David M. Smith <david.m.smith@truvenhealth.com>
+David M. Smith <smithdm1@us.ibm.com>
 }
 \examples{
 \dontrun{
