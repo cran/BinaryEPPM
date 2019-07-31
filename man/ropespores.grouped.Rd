@@ -31,6 +31,5 @@ Finney, D.J. (1971). Statistical Methods in Biological Assay. Griffin, London, 2
 }
 \examples{
 data("ropespores.grouped")
-print(ropespores.grouped)
 }
 \keyword{datasets}

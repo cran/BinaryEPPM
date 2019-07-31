@@ -1,0 +1,18 @@
+bibentry(bibtype = "Article",
+  title        = "Mean and Variance Modeling of Under-Dispersed and Over-Dispersed Grouped Binary Data",
+  author       = c(person(given = c("David", "M."),
+                          family = "Smith",
+                          email = "smithdm1@us.ibm.com"),
+                   person(given = c("Malcolm", "J."),
+                          family = "Faddy",
+                          email = "m.faddy@qut.edu.au")),
+  journal      = "Journal of Statistical Software",
+  year         = "2019",
+  volume       = "90",
+  number       = "8",
+  pages        = "1--20",
+  doi          = "10.18637/jss.v090.i08",
+
+  header       = "To cite BinaryEPPM in publications use:"
+)
+

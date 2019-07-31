@@ -20,7 +20,7 @@ coefficients of the model for probability of success ("p"),
 coefficients of the model for scale-factor ("scale.factor")
 }
   \item{\dots}{
-some methods for this generic functionn require additional arguments.
+some methods for this generic function require additional arguments.
 }
 }
 \details{

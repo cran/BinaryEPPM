@@ -24,6 +24,5 @@ Finney, D.J. (1971). Statistical Methods in Biological Assay. Griffin, London, 2
 }
 \examples{
 data("ropespores.case")
-print(ropespores.case)
 }
 \keyword{datasets}

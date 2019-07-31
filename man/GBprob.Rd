@@ -33,7 +33,6 @@ David M. Smith <smithdm1@us.ibm.com>
 twoparameter <- c(0.971242852,0.001465007)
 names(twoparameter) <- c('p','b')
 nt <- 37
-output <- GBprob(twoparameter,nt)
-print(output)
+GBprob(twoparameter,nt)
 }
 \keyword{ distribution }

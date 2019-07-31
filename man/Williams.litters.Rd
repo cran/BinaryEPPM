@@ -60,6 +60,5 @@ Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
 }
 \examples{
 data("Williams.litters")
-print(Williams.litters)
 }
 \keyword{datasets}

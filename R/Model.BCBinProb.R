@@ -14,7 +14,7 @@ function(parameter,model.type,model.name,link,ntrials,
    npar.scalef <- ncol(covariates.matrix.scalef)
    npar <- npar.p + npar.scalef
    if (numpar!=npar) {
-      cat("\n","no. of parameters not equal to sum of no of columns mean & variance matrices","\n") }
+      warning("\n","no. of parameters not equal to sum of no of columns mean & variance matrices") }
 
 # modeling p 
    r.parameter <- rep(0,npar.p) 

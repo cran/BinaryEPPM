@@ -7,21 +7,21 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 # Checking for correct combinations of model.type and model.name
    if (model.name=="binomial") { 
       if (model.type!="p only") { model.type <- "p only"
-         cat("\n","model.type for binomial set to p only","\n") } # end p only
+         warning("\n","model.type for binomial set to p only") } # end p only
                         } else {
       if ((model.name!="generalized binomial") & (model.name!="beta binomial") &
           (model.name!="correlated binomial")) {
-         cat("\n","unknown model.name for this model.type","\n")
+         warning("\n","unknown model.name for this model.type")
          return(object=NULL) } } # end if binomial                       
 
 # Checking method 
    if ((method!="Nelder-Mead") & (method!="BFGS")) {
-       cat("\n","unknown function optim method","\n")
+       warning("\n","unknown function optim method")
        return(object=NULL) }
 
 # Checking that data is data.frame or list.
    if ((is.data.frame(data)==FALSE) & (is.list(data)==FALSE)) { 
-      cat("\n","Input data is neither data frame nor list.","\n")
+      warning("\n","Input data is neither data frame nor list.")
       return(object=NULL) } # end of check data.frame or list
 
     cl <- match.call()
@@ -33,7 +33,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
                   } else {
           if ((is.finite(attr(link, which="power"))==FALSE) | 
               ((attr(link, which="power")<0)==TRUE)) {
-             cat("\n","non finite or <0 power, reset to 1","\n")
+             warning("\n","non finite or <0 power, reset to 1")
              attr(link, which="power") <- 1 }} } # end if link=powerlogit
 
 # Checking for correct link functions
@@ -41,7 +41,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
        (link!="cauchit") & (link!="log") & (link!="loglog") & 
        (link!="doubexp") & (link!="doubrecip") & (link!="powerlogit") & 
        (link!="negcomplog")) {
-       cat("\n","unknown link function","\n")
+       warning("\n","unknown link function")
        return(object=NULL) 
            } else {
        if ((link=="doubexp") | (link=="doubrecip") | 
@@ -69,7 +69,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 # name of response variable
     wk.name <- attr(FBoth, which="lhs") 
     if (length(wk.name)>1) {
-       cat("\n","more than one variable name on lhs of the formula","\n")
+       warning("\n","more than one variable name on lhs of the formula")
        return(object=NULL) }
 
 # data.frame or list
@@ -129,15 +129,15 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
               list.set <- TRUE
               list.data <- data[[1]]
                                        } else {          
-              cat("\n","single list with list of data is not named ",wk.name,"\n")
+              warning("\n","single list with list of data is not named ",wk.name)
               return(object=NULL) } # end of if wk.name==names(data)[1]
           } else { list.set <- FALSE
                    for ( i in 1:nvar ) { 
             if (is.list(data[[i]])==TRUE) { 
                if ((wk.name==names(data)[i])==TRUE) { 
                   if (list.set==TRUE)  { 
-                     cat("\n","More than one list named ",wk.name," within list of data so","\n")
-                     cat("not clear which is the dependent variable.","\n")
+                     warning("\n","More than one list named ",wk.name," within list of data so",
+                             "\n","not clear which is the dependent variable.")
                                          return(object=NULL)
                                 } else { list.data <- data[[i]] 
                                          list.set <- TRUE } # end of list.set==TRUE
@@ -157,7 +157,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
                                                            }}} } # end for loop
                                                  } # end if nvar==1 & is.list
       if (list.set==FALSE) { 
-         cat("\n","No list named ",wk.name," within list of data.","\n")
+         warning("\n","No list named ",wk.name," within list of data.")
          return(object=NULL) } # end of if list.set==FALSE
 
       mean.obs     <- rep(0,nobs)
@@ -202,8 +202,8 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 
 # normalizing weights 
 
-      if (is.null(attr(weights, which="normalize"))==TRUE) { 
-          attr(weights, which="normalize") <- FALSE }
+#      if (is.null(attr(weights, which="normalize"))==TRUE) { 
+#          attr(weights, which="normalize") <- FALSE }
 
       if (attr(weights, which="normalize")==TRUE) {
          wkv <- c(rep(0, nobs))
@@ -223,9 +223,9 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
    mf$data <- wkdata
    mf$resp.var <- p.obs
    mf$formula  <- update(formula(FBoth,lhs=NULL,rhs=1), p.obs ~ . )
-   if (data.type==FALSE) { 
-      if (is.null(weights)==TRUE) { mf$weights=vnmax
-                           } else { mf$weights=vnmax }} # end if data.type
+# Setting up weights
+   if (data.type==FALSE) { mf$weights=vnmax } # end if data.type
+
 # This statement evaluates mf as a data.frame
    wkdata <- eval(mf, parent.frame())
 
@@ -324,7 +324,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
    if ((model.type!="p only") & (model.type!="p and scale-factor")) {
       covariates.matrix.p      <- NULL
       covariates.matrix.scalef <- NULL
-      cat("\n","unknown model.type","\n")
+      warning("\n","unknown model.type")
       return(object=NULL) 
            } else {
 # Checking that formula has 1 lhs and either 1 or 2 rhs
@@ -332,8 +332,8 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 # and scale-factor 
       if (model.type=="p only") {
          if (lenFB[2]==2) { 
-            cat("\n","model.type is p only but rhs of formula has two parts to it")
-            cat("\n","2nd part of rhs of formula is ignored","\n") } # end if lenFB[2]
+            warning("\n","model.type is p only but rhs of formula has two parts to it",
+                    "\n","2nd part of rhs of formula is ignored","\n") } # end if lenFB[2]
             FBoth <- update(FBoth,p.obs ~ .) } # end of p only
       if (model.type=="p and scale-factor") {
          if (lenFB[2]==1) { 
@@ -351,7 +351,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
    terms.full   <- terms(formula(FBoth))
 
 # Checking that list.data is a list  
-if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n") 
+if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list") 
    return(object=NULL) }
 
    nsuccess <- list.data
@@ -369,7 +369,6 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
    covariates.matrix.p <- model.matrix(p.mf, data=wkdata) 
    offset.p <- model.offset(p.mf)
    covariates.matrix.scalef <- matrix(c(rep(1,nrow(covariates.matrix.p))),ncol=1)
-
    offset.scalef <- NULL
    if ((model.type=="p and scale-factor") & (lenFB[2]==2)) {
          scalef.mf <- model.frame(formula(FBoth,lhs=2,rhs=2), data=wkdata)
@@ -383,12 +382,9 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
    if (is.null(initial)==TRUE) { 
 # data.frame input or case data input as list, 
 # Using glm to obtain initial estimates 
-# switching off warnings from glm usually caused by non integer values for the counts
-      options(warn=-1)
 
 # setting up new formula in standard form for data.frame input
    if (data.type==TRUE) { 
-
 # changing to standard form of arguments to glm for binomial for data as a data frame
       if (is.null(weights)==TRUE) { 
          FBoth_one <- update(FBoth,cbind(resp.var,(n.var-resp.var)) ~ .) 
@@ -411,8 +407,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                             data=wkdata, weights=weights.p) 
                      } # end if data.type
       initial.p <- coefficients(glm.Results)
-# switching warnings from glm back on
-      options(warn=0)                       
+
       if (model.type=="p only") {
           if (model.name=="binomial") { parameter <- initial.p
                            names(parameter) <- names(initial.p) }
@@ -425,25 +420,23 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
           numpar <- length(parameter)
                                    } # of if model.type p only
       if (model.type=="p and scale-factor") {
-# switching off warnings from glm usually caused by non integer values for the counts
-            options(warn=-1)
             glm.Results <- glm(formula(FBoth,lhs=2,rhs=2),family=gaussian(link="log"),
                                 subset=(scalef.obs>0), data=wkdata) 
-            initial.scalef <- coefficients(glm.Results)
-# switching warnings from glm back on
-            options(warn=0)                       
+            initial.scalef <- coefficients(glm.Results)         
             parameter <- c(initial.p,initial.scalef)
             names(parameter) <- c(names(initial.p),names(initial.scalef)) 
             numpar <- length(parameter) } # of if model.type p and scale-factor
-                                   } else {
+
+                                   } else { # else of initial
+
 # Checking length of input initial against model value
       parameter <- initial
       numpar    <- length(parameter) 
       if (length(initial)!=numpar) { 
-         cat("\n","length of initial not equal to number of parameters","\n")
+         warning("\n","length of initial not equal to number of parameters")
          return(object=NULL) }
       if (is.null(names(initial))==TRUE) { 
-         cat("\n","WARNING: initial has no associated names","\n")
+         warning("\n","initial has no associated names")
          names(parameter) <- 1:numpar } } # end if is.null(initial)
 
    start <- parameter
@@ -451,7 +444,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
 # Checking nobs is the same value as length(list.data)
    wks <- length(ntrials)
    if (wks!=nobs) { 
-         cat("\n","number of rows of covariates.matrix.p not equal to length of list.data","\n")
+         warning("\n","number of rows of covariates.matrix.p not equal to length of list.data")
          return(object=NULL) }
    npar.p      <- ncol(covariates.matrix.p)
    npar.scalef <- ncol(covariates.matrix.scalef)
@@ -465,7 +458,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
 # the original call to BinaryEPPM causes this error if 
 # (is.null(initial)==TRUE) is not included 
    if ((numpar!=npar) & (is.null(initial)==TRUE)) { 
-      cat("\n","number of parameters error","\n") 
+      warning("\n","number of parameters error") 
       return(object=NULL) }
 
 # link function for mean
@@ -481,7 +474,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
 
       if ((pseudo.r.squared.type!="square of correlation") & (pseudo.r.squared.type!="R squared") & 
           (pseudo.r.squared.type!="max-rescaled R squared")) {
-            cat("\n","unknown argument for pseudo.r.squared.type","\n") 
+            warning("\n","unknown argument for pseudo.r.squared.type") 
             return(object=NULL) } # end of if pseudo.r.squared.type
 
 # Checking grad.method if method is BFGS
@@ -490,7 +483,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                attr(method,which="grad.method") <- "simple" }
          if ((attr(method,which="grad.method")!="simple") & 
              (attr(method,which="grad.method")!="Richardson")) {
-            cat("\n","unknown gradient method with method BFGS so reset to simple","\n")
+            warning("\n","unknown gradient method with method BFGS so reset to simple")
                attr(method,which="grad.method") <- "simple" }
                grad.method <- attr(method,which="grad.method")
                            } else {
@@ -503,7 +496,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                                      ntrials,nsuccess,covariates.matrix.p,covariates.matrix.scalef,
                                      offset.p,offset.scalef,weights,grad.method)
          if (initial.loglikelihood<=-1.e+20) { 
-            cat("\n","initial estimates give a log likelihood outside legitimate range","\n")
+            warning("\n","initial estimates give a log likelihood outside legitimate range")
             return(object=NULL) } } # end if is.null(initial)
 
 # Setting defaults and checking control parameters for optim
@@ -524,7 +517,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
              (names(control[i])!="beta") & (names(control[i])!="gamma") & 
              (names(control[i])!="REPORT")) { 
             wkname <- names(control[i])
-            cat("\n","WARNING: Argument in control is unknown so ignored.","\n")
+            warning("\n","Argument in control is unknown so ignored.")
                                   } # end of if
          if (names(control[i])=="fnscale") { wk.control$fnscale <- control[[i]] }
          if (names(control[i])=="trace")   { wk.control$trace   <- control[[i]] }
@@ -586,21 +579,21 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                                offset.p,offset.scalef,weights,grad.method)
           if (iprt>0) {
              if (model.name=="generalized binomial") { 
-                if (model.type=="p only") { cat("The parameter b=0 showing that the variance","\n") 
-                   cat("has reached the Poisson boundary hence its se is set to NA.","\n")
-                         } else { cat("The parameter b=0 for some observations showing that","\n") 
-                                  cat("the variance has reached the Poisson boundary.","\n") }
+                if (model.type=="p only") { warning("The parameter b=0 showing that the variance", 
+                                    "\n","has reached the Poisson boundary hence its se is set to NA.")
+                         } else { warning("The parameter b=0 for some observations showing that", 
+                                          "\n","the variance has reached the Poisson boundary.") }
                                 } # end of if model
              if (model.name=="beta binomial") { 
-                if (model.type=="p only") { cat("The value of theta is less than the lower limit","\n") 
-                   cat("for some observations hence its se is set to NA.","\n") 
-                         } else { cat("The values of theta for some observations are less","\n") 
-                                  cat("than the lower limits.","\n") } } # end of if model
+                if (model.type=="p only") { warning("The value of theta is less than the lower limit", 
+                                                    "\n","for some observations hence its se is set to NA.") 
+                         } else { warning("The values of theta for some observations are less","\n", 
+                                          "than the lower limits.","\n") } } # end of if model
              if (model.name=="correlated binomial") { 
-                if (model.type=="p only") { cat("The value of rho is outside the lower to upper limit","\n") 
-                                            cat("range for some observations hence its se is set to NA.","\n") 
-                         } else { cat("The values of rho for some observations are","\n") 
-                                  cat("outside the lower to upper limit range.","\n") } } } # end of if iprt==1
+                if (model.type=="p only") { warning("The value of rho is outside the lower to upper limit", 
+                                                    "\n","range for some observations hence its se is set to NA.") 
+                         } else { warning("The values of rho for some observations are",
+                                          "\n","outside the lower to upper limit range.") } } } # end of if iprt==1
                                  } # end of if length(parameter)=1 
           names(wk.optim$par) <- names(parameter) 
 
@@ -685,7 +678,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
 # R squared or max-rescaled R squared
           wks <- sum(vnmax)
           if ((sum(vnmax)==length(vnmax)) & (pseudo.r.squared.type=="square of correlation")) {       
-             cat("logistic regression but pseudo.r.squared.type is square of correlation","\n")
+             warning("logistic regression but pseudo.r.squared.type is square of correlation")
                   } else {
 # calculation of pseudo R squared
           if (nobs>1) {
@@ -706,7 +699,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                 if ((sd(eta, na.rm=TRUE)>0) & (sd(lp.obs, na.rm=TRUE)>0)) { 
                      pseudo.r.squared <- cor(eta, lp.obs, use="complete.obs")^2 
                               } else {
-#                     cat("One or both of observed or fitted linear predictor has 0 sd.","\n")
+#                     warning("One or both of observed or fitted linear predictor has 0 sd.")
                      pseudo.r.squared <- NA } } # end of if square of correlation
             if ((pseudo.r.squared.type=="R squared") | (pseudo.r.squared.type=="max-rescaled R squared")) {
 # calculation of pseudo R squared as the generalized coefficient of determination 
@@ -714,8 +707,7 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
 
 # obtain log likelihood of intercept only models for a binomial
 # Using glm to obtain estimate of p for a binomial model with intercept only
-# switching off warnings from glm usually caused by non integer values for the counts
-            options(warn=-1)
+
 # setting up new formula in standard form for data.frame input
 # changing to standard form of arguments to glm for binomial for data as a data frame
             if (data.type==TRUE) { 
@@ -733,8 +725,6 @@ if (is.list(list.data)==FALSE) { cat("\n","list.data is not a list","\n")
                glm.Results <- glm(formula(FBoth_two,lhs=1,rhs=1),family=binomial(link=attr(link, which="p")),
                                      data=wkdata, weights=weights.p) 
                              } # end if data.type 
-# switching warnings from glm back on
-            options(warn=0)
 
             intercept.loglikelihood <- LL.Regression.Binary(parameter=coefficients(glm.Results),
                                          model.type="p only",model.name="binomial",link=link,

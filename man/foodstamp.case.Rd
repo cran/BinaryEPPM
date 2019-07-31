@@ -24,7 +24,7 @@ tenancy and supplemental income, and a continuous one of the log(monthly income+
 \source{
 Rousseeuw P, Croux C, Todorov V, Ruckstuhl A, Salibian-Barrera M, 
 Verbeke T, Koller M, Maechler M (2016). \emph{\bold{robustbase}: Basic Robust Statistics}. 
-R package version 0.92-6, \url{CRAN.R-project.org.package=robustbase}.
+R package version 0.92-6, \url{http://robustbase.r-forge.r-project.org/}.
 }
 \references{
 Kunsch HR, Stefanski LA, Carroll RJ (1989). Conditionally Unbiased Bounded-Influence
@@ -34,6 +34,5 @@ Estimation in General Regression Models, with Applications to Generalized Linear
 }
 \examples{
 data(foodstamp.case)
-print(foodstamp.case)
 }
 \keyword{datasets}

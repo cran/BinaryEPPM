@@ -35,7 +35,6 @@ David M. Smith <smithdm1@us.ibm.com>
 twoparameter <- c(0.96477815,0.7561417)
 names(twoparameter) <- c('p','theta')
 nt <- 37
-output <- BBprob(twoparameter,nt)
-print(output)
+BBprob(twoparameter,nt)
 }
 \keyword{ distribution }

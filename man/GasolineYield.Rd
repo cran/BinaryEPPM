@@ -32,6 +32,5 @@ Cribari-Neto F, Zeileis A. (2010). Beta Regression in R.
 }
 \examples{
 data(GasolineYield)
-print(GasolineYield)
 }
 \keyword{datasets}

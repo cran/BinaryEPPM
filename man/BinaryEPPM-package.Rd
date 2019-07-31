@@ -15,7 +15,8 @@ The DESCRIPTION file:
 Using Generalized Linear Model (GLM) terminology, the functions 
 utilize linear predictors for the probability of success
 and scale-factor with various link functions for p, and log link
-for scale-factor, to fit regression models. 
+for scale-factor, to fit regression models. Smith and Faddy (2019) gives 
+further details about the package as well as examples of its use.
 }
 \author{
 \packageAuthor{BinaryEPPM}
@@ -32,6 +33,10 @@ Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
 
 Grun B, Kosmidis I, Zeileis A. (2012). Extended Beta Regression in R: Shaken, Stirred, Mixed, and Partitioned.
 \emph{Journal of Statistical Software}, \bold{48}(11), 1-25. \doi{10.18637/jss.v048.i11}.
+
+Smith D, Faddy M. (2019). Mean and Variance Modeling of Under-Dispersed and Over-Dispersed
+Grouped Binary Data. \emph{Journal of Statistical Software}, \bold{90}(8), 1-20.
+\doi{10.18637/jss.v090.i08}.
 
 Zeileis A, Croissant Y. (2010). Extended Model Formulas in R: Multiple Parts and Multiple Responses.
 \emph{Journal of Statistical Software}, \bold{34}(1), 1-13. \doi{10.18637/jss.v034.i01}.

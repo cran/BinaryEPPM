@@ -86,12 +86,12 @@ function (object, newdata = NULL, type = c("response", "linear.predictor.p",
 # Regardless of whether the original data is a list or a data frame, 
 # newdata must be a data frame. 
         if (is.data.frame(newdata)==FALSE) { 
-           cat("\n","Input newdata is not a data frame.","\n")
+           warning("\n","Input newdata is not a data frame.")
            return(object=NULL)
                                     } else {
            if (object$data.type==FALSE) {
               if (("vnmax"%in%names(newdata))==FALSE) {
-                 cat("\n","No variable named vnmax in newdata.","\n")
+                 warning("\n","No variable named vnmax in newdata.")
               return(object=NULL) }} } # end of check data.frame
 
         mf <- model.frame(delete.response(object$terms[["p"]]), 

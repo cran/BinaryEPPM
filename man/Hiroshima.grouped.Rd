@@ -40,6 +40,5 @@ Errors." Journal of the American Statistical Association, 81, 321-327.
 }
 \examples{
 data("Hiroshima.grouped")
-print(Hiroshima.grouped) 
 }
 \keyword{datasets}

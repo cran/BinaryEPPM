@@ -161,7 +161,7 @@ function(object, ..., vcov = NULL, test = c("Chisq", "F"))
 	  else vfun
 
     ## compute Chisq statistic
-    stat <- t(llcoeffm1[ovar]) %*% solve(vc[ovar,ovar]) %*% coef0(fm1)[ovar]
+    stat <- t(llcoeffm1[ovar]) %*% solve(vc[ovar,ovar]) %*% llcoeffm1[ovar]
     return(c(-q, stat))
   } # end of modelCompare
 

@@ -7,7 +7,7 @@ function (object, model = c("full", "p", "scale.factor"), ...) {
     if (missing(model)) { model <- c("full") } 
 # Checking for correct model option
       if ((model!="full") & (model!="p") & (model!="scale.factor")) {
-         cat("\n","unknown model option","\n")
+         warning("\n","unknown model option")
          vc <- NULL
                                    } else {
          switch(model, full = { vc 
@@ -15,7 +15,7 @@ function (object, model = c("full", "p", "scale.factor"), ...) {
            vc <- vc[seq.int(from = 1, to = k, by = 1), 
               seq.int(from = 1, to = k, by = 1), drop = FALSE]
                   }, scale.factor = {
-           if (m==0) { cat("\n","the scale-factor model has no elements","\n")
+           if (m==0) { warning("\n","the scale-factor model has no elements")
               vc <- NULL
                      } else { 
               vc <- vc[seq.int(length.out = m) + k, seq.int(length.out = m) + 

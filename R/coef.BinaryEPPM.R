@@ -3,7 +3,7 @@ function(object, prtpar = c("full", "p", "scale.factor"), ...) {
       if (missing(prtpar)) { prtpar <- c("full") } 
 # Checking for correct prtpar option
       if ((prtpar!="full") & (prtpar!="p") & (prtpar!="scale.factor")) {
-         cat("\n","unknown prtpar option","\n")
+         warning("\n","unknown prtpar option")
          coefficients <- NULL
                                    } else {
          if (prtpar=="full") { 

@@ -28,10 +28,8 @@ List of 3
 \source{
 Brooks, R.J., James, W.H., Gray, E. (1993). Modelling Sub-Binomial Variation in 
 the Frequency of Sex Combinations in Litters of Pigs. Biometrics 47, 403-417.
-\doi{10.2307/2532134}
 }
 \examples{
 data("Yorkshires.litters")
-print(Yorkshires.litters)
 }
 \keyword{datasets}

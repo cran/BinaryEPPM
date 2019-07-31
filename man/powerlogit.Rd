@@ -21,7 +21,6 @@ to base e.
 \references{
 Gaudard MA, Karson MJ, Linder E, Tse Sk (1993). Efficient Designs for Estimation 
 in the Power Logistic Quantal Response Model." Statistica Sinica, 3, 233-243.
-\url{http://www.jstor.org/stable/24304949}
 }
 \author{
 David M. Smith <smithdm1@us.ibm.com>

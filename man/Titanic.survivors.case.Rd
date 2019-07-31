@@ -33,6 +33,5 @@ Hilbe, J. (2011). Negative Binomial Regression. Cambridge University Press, seco
 }
 \examples{
 data(Titanic.survivors.case)
-print(Titanic.survivors.case)
 }
 \keyword{datasets}

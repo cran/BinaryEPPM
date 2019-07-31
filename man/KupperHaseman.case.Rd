@@ -20,10 +20,8 @@ for two groups each of size 10.
 \source{
 Kupper L, Haseman J. (1978). The Use of a Correlated Binomial Model for the 
 Analysis of Toxicological Experiments. Biometrics, 34(1), 69-76.
-\doi{10.2307/2529589}
 }
 \examples{
 data("KupperHaseman.case")
-print(KupperHaseman.case)
 }
 \keyword{ datasets }

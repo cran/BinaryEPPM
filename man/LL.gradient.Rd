@@ -89,15 +89,17 @@ Gilbert P, Varadhan R. (2015). numDeriv: Accurate Numerical Derivatives. R Packa
 David M. Smith <smithdm1@us.ibm.com>
 }
 \examples{
-\dontrun{
-    gradient <- grad(LL.Regression.Binary, x = parameter, model.type = model.type,
-        model.name = model.name, link = link, ntrials = ntrials, nsuccess = nsuccess,
-        covariates.matrix.p = covariates.matrix.p,
-        covariates.matrix.scalef = covariates.matrix.scalef, 
-        offset.p = offset.p, offset.scalef = offset.scalef, weights = weights,
-        grad.method = "Richardson")
-    return(gradient)
-  }
+link <- 'cloglog'
+attr(link, which="p") <- make.link(link)
+nsuccess <- list(c(rep(0,5),352,479,530,291,101,17))
+ntrials  <- list(c(rep(10,11)))
+parameter <- c(0.06363398,-0.47085362)
+LL.gradient(parameter, model.type = "p and scale-factor",
+     model.name = "generalized binomial", link = link, ntrials = ntrials, nsuccess = nsuccess,
+     covariates.matrix.p = matrix(c(1), nrow=1),
+     covariates.matrix.scalef = matrix(c(1), nrow=1), 
+     offset.p = c(0), offset.scalef = c(0), weights = list(c(rep(1,11))),
+     grad.method = "Richardson")
 }
 \keyword{ model }
 

@@ -10,7 +10,7 @@ function(parameter,model.name,link,ntrials,
    npar.scalef <- ncol(covariates.matrix.scalef)
    npar <- npar.p + npar.scalef
    if (npar!=numpar) {
-      cat("\n","no. of parameters not equal to sum of no. of columns mean & variance matrices","\n") }
+      warning("\n","no. of parameters not equal to sum of no. of columns mean & variance matrices") }
    va <- rep(0,nobs) 
    vb <- rep(0,nobs) 
    vone <- rep(1,nobs) 

@@ -29,6 +29,5 @@ Morel JG, Neechal NK(2012). Overdispersion Models in SAS. SAS Press.
 }
 \examples{
 data("Hiroshima.case")
-print(Hiroshima.case)
 }
 \keyword{datasets}

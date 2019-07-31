@@ -41,8 +41,6 @@ predictor for the mean model. If the "model.type" is "p and
 scale-factor" there are two sets of terms in the rhs of 
 "formula" i.e., "p.obs" and "scalef.obs" together with the 
 two sets of terms for the linear predictors of p and scale-factor.
-If "scale.factor.model"="yes" the second response variable 
-used by the subordinate functions would be "scalef.obs".
 }
   \item{data}{
 "data" should be either a data frame (as for use of "glm") 
@@ -172,6 +170,10 @@ Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
 
 Nagelkerke NJD. (1991). A Note on a General Definition of the Coefficient of Determination.
 \emph{Biometrika}, \bold{78}, 691-692.
+
+Smith D, Faddy M. (2019). Mean and Variance Modeling of Under-Dispersed and Over-Dispersed
+Grouped Binary Data. \emph{Journal of Statistical Software}, \bold{90}(8), 1-20.
+\doi{10.18637/jss.v090.i08}.
 
 Zeileis A, Croissant Y. (2010). Extended Model Formulas in R: Multiple Parts and Multiple Responses.
 \emph{Journal of Statistical Software}, \bold{34}(1), 1-13. \doi{10.18637/jss.v034.i01}.

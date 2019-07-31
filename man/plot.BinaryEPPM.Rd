@@ -57,13 +57,11 @@ David M. Smith <smithdm1@us.ibm.com>
 \code{\link[betareg]{plot.betareg}} 
 }
 \examples{
-\dontrun{
 data("ropespores.case") 
 output.fn <- BinaryEPPM(data = ropespores.case,
                   number.spores / number.tested ~ 1 + offset(logdilution),
                   model.type = 'p only', model.name = 'binomial')  
 plot(output.fn, which = 1, type= "sdeviance")
-}
 }
 
 \keyword{ hplot }

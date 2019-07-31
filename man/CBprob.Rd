@@ -32,7 +32,6 @@ David M. Smith <smithdm1@us.ibm.com>
 twoparameter <- c(0.971242852,0.001465007)
 names(twoparameter) <- c('p','rho')
 nt <- 37
-output <- CBprob(twoparameter,nt)
-print(output)
+CBprob(twoparameter,nt)
 }
 \keyword{ distribution }

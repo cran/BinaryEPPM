@@ -32,9 +32,8 @@ David M. Smith <smithdm1@us.ibm.com>
 }
 \examples{
 data("ropespores.case") 
-output.fn <- BinaryEPPM(data = ropespores.case,
-                  number.spores / number.tested ~ 1 + offset(logdilution),
-                  model.type = 'p only', model.name = 'binomial')   
-print(output.fn)
+BinaryEPPM(data = ropespores.case,
+           number.spores / number.tested ~ 1 + offset(logdilution),
+           model.type = 'p only', model.name = 'binomial')   
 }
 \keyword{ IO }

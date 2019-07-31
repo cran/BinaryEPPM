@@ -40,6 +40,5 @@ Mutation Research, 3, 444-451.
 }
 \examples{
 data("Luningetal.litters")
-print(Luningetal.litters)
 }
 \keyword{datasets}
