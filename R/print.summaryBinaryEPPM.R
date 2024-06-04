@@ -2,9 +2,9 @@ print.summaryBinaryEPPM <-
 function(x, ...) {
 
        if (x$data.type==TRUE) {
-          cat("\n","Dependent variable a vector of numerator / denominator.","\n")
+          cat("\n","\n","Dependent variable a vector of numerator / denominator.","\n")
                         } else {
-          cat("\n","Dependent variable is a list of binomial frequency distributions","\n")
+          cat("\n","\n","Dependent variable is a list of binomial frequency distributions","\n")
                                } # end of data.type==
 
        if (is.null(x$converged)==FALSE) {
@@ -30,7 +30,7 @@ function(x, ...) {
                                            } else {
               cat(paste("\n","Coefficients (model for p with", x$link, 
                   " link)\n", sep = " ")) } # end if link
-          if ((x$model.type=="p only") & (x$model.name=="generalized binomial")) {
+          if ((x$model.type=="p only") & (x$model.name=="EPPM extended binomial")) {
              wks <- length(x$optim$par) 
              cat(paste("Coefficient of",names(x$optim$par)[wks],"has 1 subtracted from it\n", sep=" "))
              cat(paste("so the test is against 1 i.e., a binomial.\n")) }

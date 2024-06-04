@@ -22,8 +22,8 @@ functions to both p and the scale-factor.
 }
   \item{model.name}{
 If model.type is 'p only' the model being fitted is one of the six 'binomial', 'over-dispersed-one', 
-'over-dispersed-two', 'generalized binomial', 'beta binomial' or 'correlated binomial'. If model.type 
-is 'p and scale-factor' the model being fitted is one of the three 'generalized binomial', 
+'over-dispersed-two', 'EPPM binomial', 'beta binomial' or 'correlated binomial'. If model.type 
+is 'p and scale-factor' the model being fitted is one of the three 'EPPM binomial', 
 'beta binomial' or 'correlated binomial'.
 }
   \item{link}{
@@ -55,8 +55,7 @@ An offset vector for the scale-factor. The default is a vector of ones.
 }
 }
 \value{
-Output which is the output from either Model.BCBinProb, Model.GB, Model.Binary, 
-Model.JMVGB, or Model.ODB.
+The output from either Model.BCBinProb, Model.GB, Model.Binary, Model.JMVGB, or Model.ODB.
 }
 \references{
 Faddy M, Smith D. (2012). Extended Poisson Process Modeling and 
@@ -64,7 +63,7 @@ Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
 \doi{10.1002/bimj.201100214}.
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \examples{
 link <- 'cloglog'

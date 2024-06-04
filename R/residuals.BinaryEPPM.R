@@ -124,11 +124,12 @@ function (object, type = c("spearson", "deviance", "pearson",
     }, sdeviance = {
           wkv <- rep(0,length(wk.resid.dev)) 
 # deviance residuals standardized to have an asymptotic variance of 1
-          wkv <- sapply(1:length(wk.resid.dev), function(i) { 
-              if (wk.scale.factor[i]<=0) { wkv[i] <- wkv[i]
-                              } else { wkv[i] <-
-                  wk.resid.dev[i] / sqrt( wk.scale.factor[i] * (1 - hatvalues(object)[i]) )
-                                     } } ) 
+#          wkv <- sapply(1:length(wk.resid.dev), function(i) { 
+#              if (wk.scale.factor[i]<=0) { wkv[i] <- wkv[i]
+#                              } else { wkv[i] <-
+#                  wk.resid.dev[i] / sqrt( wk.scale.factor[i] * (1 - hatvalues(object)[i]) )
+#                                     } } ) 
+          wkv <- ifelse( (wk.scale.factor<=0), wkv, wk.resid.dev / sqrt( wk.scale.factor * (1 - hatvalues(object))) )
           wkv
     }, spearson = {
 # Pearson residuals standardized to have an asymptotic variance of 1

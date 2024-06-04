@@ -26,7 +26,7 @@ Kupper L, Haseman J (1978). The Use of a Correlated Binomial Model for the
 Analysis of Toxicological Experiments. Biometrics, 34(1), 69-76.
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \examples{
 twoparameter <- c(0.971242852,0.001465007)

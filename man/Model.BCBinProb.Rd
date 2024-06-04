@@ -80,12 +80,9 @@ incidence in the analysis of data from designed experiments. Plant Pathology, 44
 
 Kupper L, Haseman J (1978). The use of a correlated binomial model for the analysis 
 of toxicological epxeriments. Biometrics, 34(1), 69-76.
-
-Williams D (1996). Overdispersion in logistic linear models. In B Morgan (ed.), 
-Statistics in Toxicology, 75-84. Oxford Science Publications.
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \examples{
 link <- 'cloglog'

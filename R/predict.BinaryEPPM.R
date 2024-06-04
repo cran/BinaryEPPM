@@ -48,7 +48,7 @@ function (object, newdata = NULL, type = c("response", "linear.predictor.p",
         }, scale.factor.limits = { 
 # limits on scale factor    
              if (object$model.name=="binomial") { vlimits <- NULL }
-             if (object$model.name=="generalized binomial") {
+             if (object$model.name=="EPPM extended binomial") {
                 vlp <- as.vector(object$covariates.matrix.p %*% object$coefficients$p.est + object$offset.p)
 # inverse of link function
                 vp <- attr(object$link, which="p")$linkinv(vlp)
@@ -165,7 +165,7 @@ function (object, newdata = NULL, type = c("response", "linear.predictor.p",
         }, scale.factor.limits = { 
 # limits on scale factor    
              if (object$model.name=="binomial") { vlimits <- NULL }
-             if (object$model.name=="generalized binomial") {
+             if (object$model.name=="EPPM extended binomial") {
                 vp <- rep(0,nobs)
                 vp <- sapply(1:nobs, function(i) {
                           probability <- output.model$probabilities[[i]]

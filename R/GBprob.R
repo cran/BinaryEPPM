@@ -14,13 +14,10 @@ function(twoparameter,nt) {
                vlambda <- vlambda*(c(rep(nt,m)) - c(0:nt))^c(rep(b,m)) } # end if (b>0)
 # limiting value for lambda
             lambda.limit <- 745
-            vlambda <- sapply(1:m, function(j) 
-                 if ((is.finite(vlambda[j])==FALSE) | (vlambda[j]>lambda.limit)) { 
-                                        vlambda[j] <- lambda.limit  
-                                      } else { vlambda[j] <- vlambda[j] } ) # end of sapply
+            vlambda <- ifelse( ((is.finite(vlambda)==FALSE) | (vlambda>lambda.limit)), lambda.limit, vlambda )
             probability <- EPPMprob(vlambda) 
                                     } # end of if (b==1)
             } else { 
                  if (a<=0) { probability <- c(1,rep(0,nt))
-                   } else { probability <- c(rep(0,nt),1) }} # end of if a>0 & a>1.e+20
+                    } else { probability <- c(rep(0,nt),1) }} # end of if a>0 & a>1.e+20
       return(probability) }

@@ -1,4 +1,3 @@
-exportPattern("^[[:alpha:]]+")
 import("Formula")
 import("expm")
 import("numDeriv")
@@ -6,6 +5,15 @@ import("stats")
 importFrom("lmtest", "coeftest", "waldtest")
 importFrom("grDevices", "dev.interactive")
 importFrom("graphics", "abline", "mtext", "par", "plot", "title")
+export("BBprob", "BinaryEPPM", "CBprob", "coef.BinaryEPPM",
+       "cooks.distance.BinaryEPPM", "doubexp", "doubrecip", "EPPMprob",
+       "fitted.BinaryEPPM", "GBprob", "hatvalues.BinaryEPPM", "LL.gradient",
+       "LL.Regression.Binary", "logLik.BinaryEPPM", "loglog",
+       "Model.BCBinProb", "Model.Binary", "Model.GB", "Model.JMVGB",
+       "negcomplog", "plot.BinaryEPPM", "powerlogit",
+       "predict.BinaryEPPM", "print.BinaryEPPM",
+       "print.summaryBinaryEPPM", "residuals.BinaryEPPM",
+       "summary.BinaryEPPM", "vcov.BinaryEPPM", "waldtest.BinaryEPPM")
 S3method(coef, BinaryEPPM)
 S3method(cooks.distance, BinaryEPPM)
 S3method(fitted, BinaryEPPM)

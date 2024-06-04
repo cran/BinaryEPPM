@@ -27,6 +27,6 @@ The log likelihood value for the fitted model object.
 \code{\link[betareg]{betareg}} 
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \keyword{ methods }

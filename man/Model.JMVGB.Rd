@@ -1,7 +1,7 @@
 \name{Model.JMVGB}
 \alias{Model.JMVGB}
 \title{
-Probabilities for generalized binomial distributions given p's 
+Probabilities for EPPM extended binomial distributions given p's 
 and scale-factors. 
 }
 \description{
@@ -21,7 +21,7 @@ estimates on function call.
 }
   \item{model.name}{
 The model being fitted is one of the two 'binomial' or 
-'generalized binomial'. 
+'EPPM extended binomial'. 
 }
   \item{link}{
 Takes one of nine values i.e., 'logit', 'probit', 'cloglog', 'cauchit', 'log',
@@ -62,7 +62,7 @@ List of arguments input together with a list of probabilities
 vectors and a data frame of values of a and b of Equation (5) 
 of Faddy and Smith (2012). 
   \item{model}{
-The model is either 'binomial' or 'generalized binomial'. 
+The model is either 'binomial' or 'EPPM extended binomial'. 
 }
   \item{link}{
 The link is either 'logit' or 'cloglog'.
@@ -85,14 +85,14 @@ Analysis of Grouped Binary Data. \emph{Biometrical Journal}, \bold{54}, 426-435.
 \doi{10.1002/bimj.201100214}.
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \examples{
 link <- 'cloglog'
 attr(link, which="p") <- make.link(link)
 parameter <- c(-0.68294630,0.03451481)
 names(parameter) <- c('p','scale-factor')
-model.name <- 'generalized binomial'
+model.name <- 'EPPM extended binomial'
 ntrials <- list(c(rep(10,11)))
 Model.JMVGB(parameter, model.name, link, ntrials, 
             covariates.matrix.p = matrix(c(1),nrow=1), 

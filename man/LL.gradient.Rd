@@ -12,7 +12,6 @@ LL.gradient(parameter, model.type, model.name, link, ntrials, nsuccess,
             covariates.matrix.p, covariates.matrix.scalef, 
             offset.p, offset.scalef, weights, grad.method)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{parameter}{ 
 A vector of the parameters of the model which is set to initial estimates 
@@ -27,11 +26,11 @@ predictor functions to both the 'p' and the scale-factor. The default is
 }
   \item{model.name}{
 If model.type is 'p only' the model being fitted is one of the four 'binomial', 
-'generalized binomial', 'beta binomial' or 'correlated binomial'. If model.type
+'EPPM extended binomial', 'beta binomial' or 'correlated binomial'. If model.type
 is 'p and scale-factor' the model being fitted is one of the three 
-'generalized binomial', 'beta binomial' or 'correlated binomial'. Information 
+'EPPM extended binomial', 'beta binomial' or 'correlated binomial'. Information 
 about these models is given in Faddy and Smith (2012). 
-The default is 'generalized binomial'.
+The default is 'EPPM extended binomial'.
 }
   \item{link}{
 Takes one of nine values i.e., 'logit', 'probit', 'cloglog', 'cauchit', 'log',
@@ -86,7 +85,7 @@ Gilbert P, Varadhan R. (2015). numDeriv: Accurate Numerical Derivatives. R Packa
 \url{https://CRAN.R-project.org/package=numDeriv}.
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \examples{
 link <- 'cloglog'
@@ -95,7 +94,7 @@ nsuccess <- list(c(rep(0,5),352,479,530,291,101,17))
 ntrials  <- list(c(rep(10,11)))
 parameter <- c(0.06363398,-0.47085362)
 LL.gradient(parameter, model.type = "p and scale-factor",
-     model.name = "generalized binomial", link = link, ntrials = ntrials, nsuccess = nsuccess,
+     model.name = "EPPM extended binomial", link = link, ntrials = ntrials, nsuccess = nsuccess,
      covariates.matrix.p = matrix(c(1), nrow=1),
      covariates.matrix.scalef = matrix(c(1), nrow=1), 
      offset.p = c(0), offset.scalef = c(0), weights = list(c(rep(1,11))),

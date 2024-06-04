@@ -14,7 +14,7 @@ function(parameter,model.name,link,ntrials,
    va <- rep(0,nobs) 
    vb <- rep(0,nobs) 
    vone <- rep(1,nobs) 
-#  model can only be generalized binomial
+#  model can only be EPPM extended binomial
 # modeling p
    r.parameter <- rep(0,npar.p) 
    r.parameter <- parameter[1:npar.p]
@@ -68,12 +68,9 @@ function(parameter,model.name,link,ntrials,
    v2bm1 <- c(rep(2,nobs))*vb - vone
    wk.vscalefact <- ((vone-vp)**v2bm1 - vone) / (-v2bm1*vp)
 # scale-factor can be less than 0, so setting scale-factor = 1.e-10 when that is so
-   wk.vscalefact <- sapply(1:nobs, function(i) {
-       if ((is.na(wk.vscalefact[i])==TRUE) | (wk.vscalefact[i]<=0)) { 
-                  wk.vscalefact[i] <- 1.e-10
-           } else { wk.vscalefact[i] <- wk.vscalefact[i] } } ) # end of sapply
-       wk.r.parameter <- qr.solve(covariates.matrix.scalef, (log(wk.vscalefact) - offset.scalef))
-       parameter[nparm1:npar] <- wk.r.parameter 
+   wk.vscalefact <- ifelse( ((is.na(wk.vscalefact)==TRUE) | (wk.vscalefact<=0)), 1.e-10, wk.vscalefact)
+   wk.r.parameter <- qr.solve(covariates.matrix.scalef, (log(wk.vscalefact) - offset.scalef))
+   parameter[nparm1:npar] <- wk.r.parameter 
 
    output <- list(model.name=model.name,link=link,parameter=parameter,
                   probabilities=probabilities,

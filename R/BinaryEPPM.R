@@ -1,18 +1,62 @@
 BinaryEPPM <-
 function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
-                  model.type="p and scale-factor",model.name="generalized binomial",
+                  model.type="p only",model.name="EPPM extended binomial",
                   link="cloglog",initial=NULL,method="Nelder-Mead",
                   pseudo.r.squared.type="square of correlation",control=NULL) {
 
+    cl <- match.call()
+
+    mf <- match.call(expand.dots = FALSE)
+    m <- match(c("formula", "data", "subset", "na.action", "weights"), names(mf), 0L)
+    mf <- mf[c(1L, m)]
+    mf$drop.unused.levels <- TRUE 
+    FBoth <- Formula(formula) 
+    lenFB <- length(FBoth) 
+
+# The following statements are to address an issue that arises when the model.type
+# is changed from "p only" to "p and scale-factor"using update. In these circumstances 
+# the formula is not changed from one part to two parts. The following statements
+# address this by recontructing the formula used in Formula.
+    if ((model.type=="p and scale-factor") & (lenFB[2]==1)) {
+       char.FBoth <- strsplit(as.character(attr(FBoth,"rhs")[[1]][[2]]), split=character(0))
+       if (char.FBoth[[1]]=="|") {
+          FBoth <- Formula(as.formula(paste(paste(attr(FBoth,"lhs")),"~",
+                             paste(as.character(paste(char.FBoth[[2]], collapse = ""))), "|",
+                             paste(as.character(paste(char.FBoth[[3]], collapse = "")))))) 
+          lenFB <- length(FBoth)
+                          } else {
+          warning("model.type is p and scale-factor but the formula has one right hand side")
+          return(NULL) } } # end of if ((model.type=="p and scale-factor") & (lenFB[2]==1))
+
+# Note that a change from "p and scale-factor" to "p only" using update has a similar issue. 
+# This issue is that the two part formula is not reduced to one part, the complete two
+# part formula is saved as one part which causes an error later in the package.
+    if ((model.type=="p only") & (lenFB[2]==2)) {
+       warning("\n","model.type is p only but the formula has two right hand sides")
+       lenFB <- length(FBoth)
+       return(NULL) } # end if ((model.type=="p only") ...
+
+# as in betareg package handling subset=option 
+    if (missing(data)) { data <- environment(formula) }
+
+    mf[[1L]] <- as.name("model.frame")
+
+# Checking moved to after the identification of the model to be fitted, etc.
+
 # Checking for correct combinations of model.type and model.name
    if (model.name=="binomial") { 
-      if (model.type!="p only") { model.type <- "p only"
-         warning("\n","model.type for binomial set to p only") } # end p only
+      if (model.type=="p and scale-factor") {
+         warning("\n","model.type for binomial must be set to p only")
+         return(object=NULL)    } # end if (model.type!="p only")
                         } else {
-      if ((model.name!="generalized binomial") & (model.name!="beta binomial") &
+      if ((model.name!="EPPM extended binomial") & (model.name!="beta binomial") &
           (model.name!="correlated binomial")) {
          warning("\n","unknown model.name for this model.type")
-         return(object=NULL) } } # end if binomial                       
+         return(object=NULL) } } # end if binomial       
+# Checking model.type
+    if ((model.type!="p only") & (model.type!="p and scale-factor")) { 
+         warning("\n","unknown model.type") 
+         return(object=NULL) } # end if binomial                    
 
 # Checking method 
    if ((method!="Nelder-Mead") & (method!="BFGS")) {
@@ -24,7 +68,11 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
       warning("\n","Input data is neither data frame nor list.")
       return(object=NULL) } # end of check data.frame or list
 
-    cl <- match.call()
+# name of response variable
+    wk.name <- attr(FBoth, which="lhs") 
+    if (length(wk.name)>1) {
+       warning("\n","more than one variable name on lhs of the formula")
+       return(object=NULL) }
 
 # link functions
     if (link=="powerlogit") { 
@@ -55,33 +103,15 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
                                 } else {
           attr(link, which="p") <- make.link(link) } } #end of if link
 
-# as in betareg package handling subset=option 
-    if (missing(data)) { data <- environment(formula) }
-    mf <- match.call(expand.dots = FALSE)
-    m <- match(c("formula", "data", "subset", "na.action", "weights"), names(mf), 0L)
-    mf <- mf[c(1L, m)]
-    mf$drop.unused.levels <- TRUE 
-
-    FBoth <- Formula(formula) 
-    lenFB <- length(FBoth) 
-    mf[[1L]] <- as.name("model.frame")
-
-# name of response variable
-    wk.name <- attr(FBoth, which="lhs") 
-    if (length(wk.name)>1) {
-       warning("\n","more than one variable name on lhs of the formula")
-       return(object=NULL) }
-
 # data.frame or list
-
    if (is.data.frame(data)==TRUE) { 
 
 # indicator of whether a data frame (TRUE) or a list (FALSE)
 # data frame input
       data.type <- TRUE
-
       mfBoth    <- model.frame(FBoth,data=data)
       binom.var <- model.part(FBoth,data,lhs=1)
+
 # storing name of numerator in response variable for use 
 # with the newdata option in predict.BinaryEPPM
       denom.name <- attr(binom.var, which="names")[2][1]
@@ -114,7 +144,6 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
       wkdata <- data.frame(p.obs,scalef.obs,data)
 
                                    } else { 
-
 # list of frequency distributions input
       data.type <- FALSE
 
@@ -219,10 +248,10 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
                             } } # end if(attr(weights,
 
 				  } # end is.null(weights) 
-
    mf$data <- wkdata
    mf$resp.var <- p.obs
    mf$formula  <- update(formula(FBoth,lhs=NULL,rhs=1), p.obs ~ . )
+
 # Setting up weights
    if (data.type==FALSE) { mf$weights=vnmax } # end if data.type
 
@@ -231,16 +260,13 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 
 #   evaluating scale-factor model if used 
     if (model.type=="p and scale-factor") { 
-          mf.scalef <- mf
-          mf.scalef$resp.var <- scalef.obs
-       if (lenFB[2]==2) {
+       mf.scalef <- mf[c(1L, m)]
+       mf.scalef$drop.unused.levels <- TRUE
+       mf.scalef$resp.var <- scalef.obs
           mf.scalef$formula <- update(formula(FBoth,lhs=NULL,rhs=2), scalef.obs ~ . )
-                        } else {
-          mf.scalef$formula <- update(formula(FBoth,lhs=NULL,rhs=NULL), scalef.obs ~ 1 )
-                               } # end if (lenFB[2]==2)
-
 # This statement evaluates mf.scalef as a data.frame
-      temp.wkdata <- eval(mf.scalef, parent.frame())
+      temp.wkdata <- mf.scalef$data
+
 # removing from temp.wkdata the variables common to both data frames, i.e., it & wkdata
       intersection.var <- intersect(names(wkdata), names(temp.wkdata))
       dup.var <- duplicated(c(intersection.var, names(temp.wkdata)))
@@ -316,7 +342,7 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
                         } ) # end of sapply
 
 # removing wkdata on exit 
-    on.exit(rm(wkdata))
+    on.exit(rm(wkdata, FBoth))
 
 # Checking arguments of function
 
@@ -331,17 +357,14 @@ function(formula,data,subset=NULL,na.action=NULL,weights=NULL,
 # corresponding to just a formula for p, and a formula for both p
 # and scale-factor 
       if (model.type=="p only") {
-         if (lenFB[2]==2) { 
+        if (lenFB[2]==2) { 
             warning("\n","model.type is p only but rhs of formula has two parts to it",
                     "\n","2nd part of rhs of formula is ignored","\n") } # end if lenFB[2]
-            FBoth <- update(FBoth,p.obs ~ .) } # end of p only
+            FBoth <- update(formula(FBoth,lhs=1,rhs=NULL), p.obs ~ .)
+                                 } # end of p only
       if (model.type=="p and scale-factor") {
-         if (lenFB[2]==1) { 
-# Model for scale-factor set to intercept only.
-            FBoth <- update(FBoth,p.obs | scalef.obs ~ . | 1 )
-                                     } else {
-            FBoth <- update(FBoth,p.obs | scalef.obs ~ . | . ) }
-                                       } } # end of if p and scale-factor 
+            FBoth <- update(FBoth,p.obs | scalef.obs ~ . | . ) } # end if model.type = p and scale-factor
+                       } # end if ((model.type!="p only") & (model.type!="p and scale-factor"))  
 
    terms.p <- terms(formula(FBoth,lhs=1,rhs=1))
    if (model.type=="p only") { 
@@ -370,7 +393,8 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
    offset.p <- model.offset(p.mf)
    covariates.matrix.scalef <- matrix(c(rep(1,nrow(covariates.matrix.p))),ncol=1)
    offset.scalef <- NULL
-   if ((model.type=="p and scale-factor") & (lenFB[2]==2)) {
+#   if ((model.type=="p and scale-factor") & (lenFB[2]==2)) {
+   if (model.type=="p and scale-factor") {
          scalef.mf <- model.frame(formula(FBoth,lhs=2,rhs=2), data=wkdata)
          covariates.matrix.scalef <- model.matrix(scalef.mf, data=wkdata) 
          offset.scalef <- model.offset(scalef.mf) } # end if p and scale-factor 
@@ -385,17 +409,17 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
 
 # setting up new formula in standard form for data.frame input
    if (data.type==TRUE) { 
+
 # changing to standard form of arguments to glm for binomial for data as a data frame
+      FBoth_one <- update(FBoth,cbind(resp.var,(n.var-resp.var)) ~ .) 
       if (is.null(weights)==TRUE) { 
-         FBoth_one <- update(FBoth,cbind(resp.var,(n.var-resp.var)) ~ .) 
-         glm.Results <- glm(formula(FBoth_one,lhs=1,rhs=1),family=binomial(attr(link, which="p")),
+         glm.Results <- glm(formula(FBoth_one,lhs=1,rhs=1),family=quasibinomial(attr(link, which="p")),
                             data=wkdata)
                            } else { 
          wkdata <- data.frame(wkdata, weights) 
-         FBoth_one <- update(FBoth,cbind(resp.var,(n.var-resp.var)) ~ .) 
-         glm.Results <- glm(formula(FBoth_one,lhs=1,rhs=1),family=binomial(attr(link, which="p")),
-                            data=wkdata, weights=weights) }
-                     } else {
+         glm.Results <- glm(formula(FBoth_one,lhs=1,rhs=1),family=quasibinomial(attr(link, which="p")),
+                            data=wkdata, weights=weights) } # end if (is.null(weights)==TRUE) 
+                     } else { # if (data.type==TRUE)
          weights.p <- c(rep(1,nobs))
          if (is.null(weights)==FALSE) { 
             weights.p <- as.vector(sapply(1:nobs, function(i) { 
@@ -403,7 +427,7 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
          weights.p <- weights.p*vnmax
          wkdata <- data.frame(wkdata, weights.p) 
          FBoth_one <- update(FBoth, p.obs ~ . ) 
-         glm.Results <- glm(formula(FBoth_one,lhs=1,rhs=1),family=binomial(attr(link, which="p")),
+         glm.Results <- glm(formula(FBoth_one,lhs=1,rhs=1),family=quasibinomial(attr(link, which="p")),
                             data=wkdata, weights=weights.p) 
                      } # end if data.type
       initial.p <- coefficients(glm.Results)
@@ -411,8 +435,8 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
       if (model.type=="p only") {
           if (model.name=="binomial") { parameter <- initial.p
                            names(parameter) <- names(initial.p) }
-          if (model.name=="generalized binomial")  { parameter <- c(initial.p,1) 
-                           names(parameter) <- c(names(initial.p),"GB parameter") }
+          if (model.name=="EPPM extended binomial")  { parameter <- c(initial.p,1) 
+                           names(parameter) <- c(names(initial.p),"EPPM b") }
           if (model.name=="beta binomial") { parameter <- c(initial.p,0) 
                            names(parameter) <- c(names(initial.p),"beta binomial theta") }
           if (model.name=="correlated binomial") { parameter <- c(initial.p,0) 
@@ -422,12 +446,12 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
       if (model.type=="p and scale-factor") {
             glm.Results <- glm(formula(FBoth,lhs=2,rhs=2),family=gaussian(link="log"),
                                 subset=(scalef.obs>0), data=wkdata) 
-            initial.scalef <- coefficients(glm.Results)         
+            initial.scalef <- coefficients(glm.Results)  
             parameter <- c(initial.p,initial.scalef)
             names(parameter) <- c(names(initial.p),names(initial.scalef)) 
             numpar <- length(parameter) } # of if model.type p and scale-factor
 
-                                   } else { # else of initial
+                                   } else { # else of if (is.null(initial)==TRUE)
 
 # Checking length of input initial against model value
       parameter <- initial
@@ -448,7 +472,6 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
          return(object=NULL) }
    npar.p      <- ncol(covariates.matrix.p)
    npar.scalef <- ncol(covariates.matrix.scalef)
-
    if (model.type=="p only") {
       npar <- npar.p 
       if (model.name!="binomial") { npar <- npar + 1 }}
@@ -497,7 +520,7 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
                                      offset.p,offset.scalef,weights,grad.method)
          if (initial.loglikelihood<=-1.e+20) { 
             warning("\n","initial estimates give a log likelihood outside legitimate range")
-            return(object=NULL) } } # end if is.null(initial)
+            return(object=NULL) } } # end if (is.null(initial)==TRUE)
 
 # Setting defaults and checking control parameters for optim
    if (is.null(control)==TRUE) { 
@@ -549,14 +572,14 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
                            counts=NA, convergence=0, message=NULL)   
                      } else {
           if (method=="Nelder-Mead") { gr.fun <- NULL 
-                                 } else { gr.fun <- LL.gradient }              
+                              } else { gr.fun <- LL.gradient } 
           wk.optim <- optim(parameter,fn=LL.Regression.Binary,gr=gr.fun,
                             model.type,model.name,link,ntrials,nsuccess,
                             covariates.matrix.p,covariates.matrix.scalef,
                             offset.p,offset.scalef,weights,grad.method,
                             method=method,control=control,hessian=FALSE) 
           if (wk.optim$convergence==0) { converged <- TRUE 
-                               } else { converged <- FALSE } 
+                                } else { converged <- FALSE } 
           attr(converged, which="code") <- wk.optim$convergence 
 
 # The parameter estimates returned from a new call to Model.Binary being different
@@ -578,22 +601,24 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
                                covariates.matrix.p,covariates.matrix.scalef,
                                offset.p,offset.scalef,weights,grad.method)
           if (iprt>0) {
-             if (model.name=="generalized binomial") { 
-                if (model.type=="p only") { warning("The parameter b=0 showing that the variance", 
-                                    "\n","has reached the Poisson boundary hence its se is set to NA.")
-                         } else { warning("The parameter b=0 for some observations showing that", 
-                                          "\n","the variance has reached the Poisson boundary.") }
-                                } # end of if model
+             if (model.name=="EPPM extended binomial") { 
+                if (model.type=="p only") {
+                   warning("The value of b is greater than the upper limit.")
+                         } else { 
+                   warning("Values of b are greater than the upper limit for some observations.") }
+                                                        } # end of if model
              if (model.name=="beta binomial") { 
-                if (model.type=="p only") { warning("The value of theta is less than the lower limit", 
-                                                    "\n","for some observations hence its se is set to NA.") 
-                         } else { warning("The values of theta for some observations are less","\n", 
-                                          "than the lower limits.","\n") } } # end of if model
+                if (model.type=="p only") {
+                   warning("The value of theta is less than the lower limit.") 
+                         } else { 
+                   warning("Values of theta are less than the lower limits for some observations.") }
+                                               } # end of if model
              if (model.name=="correlated binomial") { 
-                if (model.type=="p only") { warning("The value of rho is outside the lower to upper limit", 
-                                                    "\n","range for some observations hence its se is set to NA.") 
-                         } else { warning("The values of rho for some observations are",
-                                          "\n","outside the lower to upper limit range.") } } } # end of if iprt==1
+                if (model.type=="p only") { 
+                   warning("The value of rho is outside the lower to upper limit.") 
+                         } else { 
+                   warning("Values of rho are outside the lower to upper limit range for some observations") }
+                                                     } } # end of if iprt==1
                                  } # end of if length(parameter)=1 
           names(wk.optim$par) <- names(parameter) 
 
@@ -615,7 +640,6 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
                                    } else { 
                 wkv.coefficients <- list(p.est=wk.optim$par[1:npar.p], scalef.est=wk.optim$par[npar]) }
                                     } # if model.type
-
           if (model.type=="p and scale-factor") { 
 # Calculation of scale-factors and variances from parameter estimates and design matrices
              npar.scalef <- ncol(covariates.matrix.scalef)
@@ -641,6 +665,7 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
                 offset.p=offset.p,offset.scalef=offset.scalef,weights=weights,
                 grad.method=grad.method)
 
+
 # checking condition number of vcov and inverting plus square rooting to get variance/covariance matrix
           deter <- det(model.hessian)
           wk.npar <- nrow(model.hessian)
@@ -652,6 +677,7 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
                                     if (condition>1e-16) {
                                         vcov <- - solve(model.hessian)
                                            } else { vcov <- matrix(c(rep(NA,(wk.npar*wk.npar))),ncol=wk.npar) }}} 
+
 # Setting up row and column names for vcov
           colnames(vcov) <- rownames(vcov) <- names(wk.optim$par[1:wk.npar]) 
           probabilities <- Model.Binary(wk.optim$par,model.type,model.name,link,ntrials,
@@ -690,17 +716,20 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
                    eta <- offset.p }
 # link function
                 lp.obs <- attr(link, which="p")$linkfun(p.obs)
-                eta <- sapply(1:nobs, function(i) {
-                    if (abs(eta[i])==Inf) { eta[i] <- NA 
-                            } else { eta[i] <- eta[i] }} )
-                lp.obs <- sapply(1:nobs, function(i) {
-                    if (abs(lp.obs[i])==Inf) { lp.obs[i] <- NA
-                            } else { lp.obs[i] <- lp.obs[i] }} )
+#                eta <- sapply(1:nobs, function(i) {
+#                    if (abs(eta[i])==Inf) { eta[i] <- NA 
+#                            } else { eta[i] <- eta[i] }} )
+                eta <- ifelse( (abs(eta)==Inf), NA, eta )
+#                lp.obs <- sapply(1:nobs, function(i) {
+#                    if (abs(lp.obs[i])==Inf) { lp.obs[i] <- NA
+#                            } else { lp.obs[i] <- lp.obs[i] }} )
+                lp.obs <- ifelse( (abs(lp.obs)==Inf), NA, lp.obs ) 
                 if ((sd(eta, na.rm=TRUE)>0) & (sd(lp.obs, na.rm=TRUE)>0)) { 
                      pseudo.r.squared <- cor(eta, lp.obs, use="complete.obs")^2 
                               } else {
 #                     warning("One or both of observed or fitted linear predictor has 0 sd.")
                      pseudo.r.squared <- NA } } # end of if square of correlation
+
             if ((pseudo.r.squared.type=="R squared") | (pseudo.r.squared.type=="max-rescaled R squared")) {
 # calculation of pseudo R squared as the generalized coefficient of determination 
 # of Cox and Snell (1989) and Nagelkerke (1991).
@@ -713,16 +742,16 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
             if (data.type==TRUE) { 
                if (is.null(weights)==TRUE) { 
                   FBoth_two <- update(FBoth,cbind(resp.var,(n.var-resp.var)) ~ 1 ) 
-                  glm.Results <- glm(formula(FBoth_two,lhs=1,rhs=1),family=binomial(attr(link, which="p")),
+                  glm.Results <- glm(formula(FBoth_two,lhs=1,rhs=1),family=quasibinomial(attr(link, which="p")),
                                      data=wkdata) 
                                     } else {
                   wkdata <- data.frame(wkdata, weights) 
                   FBoth_two <- update(FBoth,cbind(resp.var,(n.var-resp.var)) ~ 1 ) 
-                  glm.Results <- glm(formula(FBoth_two,lhs=1,rhs=1),family=binomial(attr(link, which="p")),
+                  glm.Results <- glm(formula(FBoth_two,lhs=1,rhs=1),family=quasibinomial(attr(link, which="p")),
                                      data=wkdata, weights=weights) } # end of is.null(weights)
                              } else {
                FBoth_two <- update(FBoth, p.obs ~ 1 ) 
-               glm.Results <- glm(formula(FBoth_two,lhs=1,rhs=1),family=binomial(link=attr(link, which="p")),
+               glm.Results <- glm(formula(FBoth_two,lhs=1,rhs=1),family=quasibinomial(link=attr(link, which="p")),
                                      data=wkdata, weights=weights.p) 
                              } # end if data.type 
 
@@ -769,5 +798,4 @@ if (is.list(list.data)==FALSE) { warning("\n","list.data is not a list")
                        terms=list(p=terms.p,scale.factor=terms.scalef,full=terms.full)) 
 
      attr(object, "class") <- c("BinaryEPPM")
-
      return(object) }

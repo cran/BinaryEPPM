@@ -6,19 +6,18 @@ function(parameter,model.type,model.name,link,ntrials,nsuccess,
       probabilities <- Model.Binary(parameter,model.type,model.name,link,ntrials,
                           covariates.matrix.p,covariates.matrix.scalef,
                           offset.p,offset.scalef)$probabilities 
+
+# 1.e-323 = exp(-743.7469) is the smallest probability value not to give -Inf
+      small.loglikelihood <- log(1.e-323)
+# x = 709 is the largest number not to result in an exp(x) = Inf
+
 # Calculation of log likelihood
       vlogl <- rep(0,nobs)
-      vlogl <- sapply(1:nobs, function(i) {
+      for ( i in 1:nobs) {
          probability <- probabilities[[i]]
          vsuccess    <- nsuccess[[i]] 
-         log.prob <- rep(0,length(probability))
-         log.prob <- sapply(1:length(probability), function(j) {
-                       if ((is.na(probability[j])==TRUE) | (probability[j]<0)) { 
-                                   log.prob[j] <- -1.e+20
-                          } else { 
-                           if (probability[j]==0) { log.prob[j] <- 0
-                                   } else { log.prob[j] <- log(probability[j]) }} 
-                         } ) # end of sapply
+         log.prob <- ifelse( (((probability>=0) & (probability<1.e-323)) | (is.na(probability)==TRUE)),
+                           small.loglikelihood, log(probability))
 
          if (is.null(weights)==TRUE) { vlogl[i] <- t(log.prob)%*%vsuccess
                               } else {
@@ -26,7 +25,9 @@ function(parameter,model.type,model.name,link,ntrials,nsuccess,
                                  } else {
                wk.wts <- c(rep(weights[[i]],length(vsuccess)))
                                         } # end of is.list(weights)
-         vlogl[i] <- t(wk.wts*log.prob)%*%vsuccess } } ) # end of sapply
-      if (sum((vlogl==0))==0) { loglikelihood <- sum(vlogl)
-                       } else { loglikelihood <- -1.e+20 } 
+         vlogl[i] <- t(wk.wts*log.prob)%*%vsuccess } 
+                           } # end for loop
+
+      if (is.na(sum(vlogl))==TRUE) { loglikelihood <- nobs*small.loglikelihood
+                            } else { loglikelihood <- sum(vlogl) } # end if (is.na(sum(vlogl))==TRUE)
    return(loglikelihood) }

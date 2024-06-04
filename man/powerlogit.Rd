@@ -23,6 +23,6 @@ Gaudard MA, Karson MJ, Linder E, Tse Sk (1993). Efficient Designs for Estimation
 in the Power Logistic Quantal Response Model." Statistica Sinica, 3, 233-243.
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \keyword{ models }

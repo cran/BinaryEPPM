@@ -37,14 +37,14 @@ Zeileis A, Hothorn T. (2002). Diagnostic Checking in Regression Relationships. \
 An object of class \code{"anova"} which contains the residual degrees of freedom, the difference in degrees of freedom, Wald statistic (either \code{"Chisq"} or \code{"F"}) and corresponding p value.
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \seealso{
 \code{\link[lmtest:waldtest]{waldtest}} 
 \code{\link[betareg]{betareg}} 
 }
 \examples{
-\dontrun{
+\donttest{
 data("ropespores.case") 
 output.fn <- BinaryEPPM(data = ropespores.case,
   number.spores / number.tested ~ 1 + offset(logdilution),
@@ -52,7 +52,7 @@ output.fn <- BinaryEPPM(data = ropespores.case,
 output.fn.one <- BinaryEPPM(data = ropespores.case,
   number.spores / number.tested ~ 1 + offset(logdilution),
   model.type = 'p only', model.name = 'beta binomial')   
-waldtest(output.fn, output.fn.one, test = c("Chisq", "F"),
+waldtest.BinaryEPPM(output.fn, output.fn.one, test = c("Chisq", "F"),
   vcov =  vcov)        
 }
 }

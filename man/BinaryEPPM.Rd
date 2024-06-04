@@ -9,8 +9,8 @@ using extended Poisson process models.
 }
 \usage{
 BinaryEPPM(formula, data, subset = NULL, na.action = NULL, 
-       weights = NULL, model.type = "p and scale-factor", 
-       model.name = "generalized binomial", link = "cloglog", 
+       weights = NULL, model.type = "p only", 
+       model.name = "EPPM extended binomial", link = "cloglog", 
        initial = NULL, method = "Nelder-Mead", 
        pseudo.r.squared.type = "square of correlation", control = NULL)
 }
@@ -83,9 +83,9 @@ of a success p and the scale-factor.
 }
   \item{model.name}{
 If model.type is "p only" the model being fitted is one 
-of the four "binomial", "Faddy distribution", "beta binomial", "correlated binomial". 
+of the four "binomial", "EPPM extended binomial", "beta binomial", "correlated binomial". 
 If model.type is "p and scale-factor" the model being fitted is 
-either "general" i.e. as equations (4) and (6) of Faddy and Smith (2012)
+either "EPPM extended binomial" i.e. as equations (4) and (6) of Faddy and Smith (2012)
 or one of the two "beta binomial", "correlated binomial". 
 }
   \item{link}{
@@ -124,6 +124,8 @@ available in the online R help manuals.
 }
 }
 \value{
+An object of class "BinaryEPMM" is returned. A list of object items follows.
+
 \item{data.type}{The type of the data i.e., data frame or list}
 \item{list.data}{Data as a list of lists of frequency distributions}
 \item{call}{The call of the function}
@@ -156,7 +158,7 @@ available in the online R help manuals.
 \item{terms}{Terms in model fitted}
 }
 \references{
-Cox DR, Snell EJ. (1989). \emph{Analysis of Binary Data}. Second Edition. Chapman \& Hall.
+Cox DR, Snell EJ. (1989). \emph{Analysis of Binary Data}. Second Edition. Chapman & Hall.
 
 Cribari-Neto F, Zeileis A. (2010). Beta Regression in R.
 \emph{Journal of Statistical Software}, \bold{34}(2), 1-24. \doi{10.18637/jss.v034.i02}.
@@ -183,7 +185,7 @@ Zeileis A, Croissant Y. (2010). Extended Model Formulas in R: Multiple Parts and
 \code{\link[betareg]{betareg}} 
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \examples{
 data("ropespores.case") 

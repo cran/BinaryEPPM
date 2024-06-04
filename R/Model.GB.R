@@ -4,15 +4,15 @@ function(parameter,model.name,link,ntrials,
 #  data as number of trials & number of successes  
    npar <- length(parameter) 
    nobs <- nrow(covariates.matrix.p) 
-   if (model.name=="binomial") { vb <- rep(1,nobs) 
-                    r.parameter <- parameter }
-   if (model.name=="generalized binomial") { 
+   vone <- rep(1,nobs) 
+   if (model.name=="binomial") { vb <- vone <- rep(1,nobs) 
+                        r.parameter <- parameter }
+   if (model.name=="EPPM extended binomial") { 
 # restricting b to >=0, 0 being Poisson variance, 1 being binomial
                     if (parameter[npar]<0) { parameter[npar] <- 0 }
                     r.parameter <- parameter[1:(npar-1)] 
                     vb <- rep(parameter[npar],nobs) }
    vlp  <- covariates.matrix.p%*%r.parameter + offset.p
-   vone <- rep(1,nobs) 
 # inverse of link function
    vp <- attr(link, which="p")$linkinv(vlp)
    denom <- rep(0,nobs)

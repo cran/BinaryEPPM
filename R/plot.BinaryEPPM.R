@@ -1,9 +1,10 @@
 plot.BinaryEPPM <-
-function (x, which = 1:4, caption = c("Residuals vs indices of obs.", 
-    "Cook's distance plot", "Leverage vs predicted values", 
-    "Residuals vs linear predictor", "Normal Q-Q plot of residuals", 
-    "Predicted vs observed values"), sub.caption = " ", main = "", 
-    ask = prod(par("mfcol"), 1) < length(which) && dev.interactive(), 
+function (x, which = 1:4,
+    caption = c("Residuals vs indices of obs.", "Cook's distance plot",
+    "Leverage vs predicted values", "Residuals vs linear predictor",
+    "Normal Q-Q plot of residuals", "Predicted vs observed values"),
+    sub.caption = " ", main = "", 
+    ask = prod(par("mfcol"), 1) < length(which) && dev.interactive(),
     ..., type = "spearson") 
   {
     if (!is.numeric(which) || any(which < 1) || any(which > 6)) 

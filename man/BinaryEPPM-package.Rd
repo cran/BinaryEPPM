@@ -5,18 +5,22 @@
 \packageTitle{BinaryEPPM}
 }
 \description{
-\packageDescription{BinaryEPPM}
+Under- and over-dispersed binary data are modeled using an extended Poisson 
+process model (EPPM) appropriate for binary data. A feature of the model is that the 
+under-dispersion relative to the binomial distribution only needs to be greater than
+zero, but the over-dispersion is  restricted compared to other distributional models  
+such as the beta and correlated binomials. Because of this, the examples focus on 
+under-dispersed data and how, in combination with the beta or correlated distributions,
+flexible models can be fitted to data displaying both under- and over-dispersion. Using
+Generalized Linear Model (GLM)  terminology, the functions utilize linear predictors for
+the probability of success and scale-factor with various link functions for p, and log 
+link for scale-factor, to fit a variety of models relevant to areas such as bioassay.
+Details of the EPPM are in Faddy and Smith (2012) and Smith and Faddy (2019). Two 
+important changes from version 2.3 are the change to scale-factor rather than 
+variance modeling, and the inclusion of a vignette.
 }
 \details{
-
-The DESCRIPTION file:
-\packageDESCRIPTION{BinaryEPPM}
 \packageIndices{BinaryEPPM}
-Using Generalized Linear Model (GLM) terminology, the functions 
-utilize linear predictors for the probability of success
-and scale-factor with various link functions for p, and log link
-for scale-factor, to fit regression models. Smith and Faddy (2019) gives 
-further details about the package as well as examples of its use.
 }
 \author{
 \packageAuthor{BinaryEPPM}

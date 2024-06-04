@@ -16,11 +16,11 @@ function(object, ...) {
 
        if (object$model.type=="p only") { 
            wk.object <- object
-           if (object$model.name=="generalized binomial") { 
-# Changing to test of b=1 for the generalized binomial
+           if (object$model.name=="EPPM extended binomial") { 
+# Changing to test of b=1 for the EPPM extended binomial
 # error in version 2.0 corrected in version 2.1
                wk.object$coefficients$scalef.est <- 
-                    wk.object$coefficients$scalef.est - 1 } # end of generalized binomial 
+                    wk.object$coefficients$scalef.est - 1 } # end of EPPM extended binomial 
            coeff.table.p <- coeftest(wk.object)
            coeff.table.scalef <- NULL 
                      } else {         

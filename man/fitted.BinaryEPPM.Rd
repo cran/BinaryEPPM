@@ -17,10 +17,16 @@ fitted model object of class "BinaryEPPM".
 currently not used.
 }
 }
+\details{
+This function is included so that function lrtest from package lmtest can be used.
+}
+\value{
+An vector of class "numeric" of the fitted values from the object of class "BinaryEPMM".
+}
 \seealso{
 \code{\link[stats:stats-package]{fitted}} 
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \keyword{ methods }

@@ -41,38 +41,23 @@ function(parameter,model.type,model.name,link,ntrials,
 # calculating limits beta and correlated binomial
    lower.limit <- rep(0,nobs) 
    if (model.name=="beta binomial") { 
-      lower.limit <- sapply(1:nobs, function(i) {
-         if ((vp[i]>0) & ((1-vp[i])>0)) {
-# limits as in Smith & Ridout A Remark on Algorithm AS 189 
-            if (denom[i]==1)   { lower.limit[i] <- -1 
-                               } else {
-               if (vp[i]>0.5) { lower.limit[i] <- (vp[i] - 1)/(denom[i]-1) 
-                       } else { lower.limit[i] <- -vp[i]/(denom[i]-1) }}
-                                        } else {
-            lower.limit[i] <- 0 }} ) # end of sapply
+      lower.limit <- ifelse( ((vp>0) & ((1-vp)>0)), 
+                        ifelse( (denom==1), -1, 
+                           ifelse( (vp>0.5), (vp - 1)/(denom-1), -vp/(denom-1) )), 0 )
                                                } # end of if beta binomial
-
 # calculating limits for correlated binomial
    if (model.name=="correlated binomial") { 
-      lower.limit <- sapply(1:nobs, function(i) {
-         if ((vp[i]>0) & ((1-vp[i])>0)) {
-# limits on rho given in Kupper & Haseman Biometrics (1978) 
-            if (denom[i]==1)   { lower.limit[i] <- -1 
-                               } else {
-               if (vp[i]>0.5) { lower.limit[i] <- - 2*(1-vp[i])/(denom[i]*(denom[i]-1)*vp[i]) 
-                       } else { lower.limit[i] <- - 2*vp[i]/(denom[i]*(denom[i]-1)*(1-vp[i])) }}
-                                        } else {
-            lower.limit[i] <- 0 }} ) # end of sapply
+      lower.limit <- ifelse( ((vp>0) & ((1-vp)>0)), 
+                        ifelse( (denom==1), -1, 
+                           ifelse( (vp>0.5), - 2*(1-vp)/(denom*(denom-1)*vp),
+                                             - 2*vp/(denom*(denom-1)*(1-vp)) )), 0 )
       upper.limit <- rep(0,nobs)
-      upper.limit <- sapply(1:nobs, function(i) {
-         if ((vp[i]>0) & ((1-vp[i])>0)) {
 # limits on rho given in Kupper & Haseman Biometrics (1978) 
-            if (denom[i]==1) { upper.limit[i] <- 1 
-                      } else {
-                gamma0 <- min((c(0:denom[i]) - (denom[i] - 1)*vp[i] - 0.5)**2) 
-                upper.limit[i] <- 2*vp[i]*(1-vp[i])/((denom[i]-1)*vp[i]*(1-vp[i]) + 0.25 - gamma0) }
-                                        } else {
-            upper.limit[i] <- 0 }} ) # end of sapply
+      gamma0 <- rep(0,nobs)
+      gamma0 <- sapply(1:nobs, function(i)          
+          gamma0[i] <- min((c(0:denom[i]) - (denom[i] - 1)*vp[i] - 0.5)**2) ) # end of sapply
+      upper.limit <- ifelse( ((vp>0) & ((1-vp)>0)), 
+                        ifelse( (denom==1), 1, 2*vp*(1-vp)/((denom-1)*vp*(1-vp) + 0.25 - gamma0) ), 0 )
                                           } # end of if correlated binomial
 
    if (model.type=="p only") { 
@@ -93,43 +78,30 @@ function(parameter,model.type,model.name,link,ntrials,
    if (model.type=="p and scale-factor") {
 
 # scale-factor can be undetermined when p=1
-# setting scale-factor = 1 making theta = 0
-      vscalefact <- sapply(1:nobs, function(i) {
-          if (is.finite(vscalefact[i])==FALSE) { vscalefact[i] <- 1
-              } else { vscalefact[i] <- vscalefact[i] } } ) # end of sapply
+      vscalefact <- ifelse( (is.finite(vscalefact)==FALSE), -1, vscalefact)
+
 # scale-factor can be less than 0, so setting scale-factor = 1.e-10 when that is so
-      vscalefact <- sapply(1:nobs, function(i) {
-          if (vscalefact[i]<=0) { vscalefact[i] <- 1.e-10
-              } else { vscalefact[i] <- vscalefact[i] } } ) # end of sapply
+      vscalefact <- ifelse( (vscalefact<=0), 1.e-10, vscalefact)
+
       vvariance <- vmean*(vone-vp)*vscalefact
-      vtheta <- rep(0, nobs)
-      vtheta <- sapply(1:nobs, function(i) {
-           if (denom[i]==1) { vtheta[i] <- vtheta[i]
-                            } else { 
-           vtheta[i] <- (vscalefact[i] - 1)/(denom[i]-1) } } ) # end of sapply
+      vtheta <- ifelse( (denom==1), vtheta, (vscalefact - 1)/(denom-1))
 
 # converting rho to theta for beta binomial so for the
 # correlated binomial theta is actually rho
       if (model.name=="beta binomial") { 
          vtheta <- vtheta/(vone-vtheta) 
-         vtheta <- sapply(1:nobs, function(i) {
-             if (vtheta[i]<lower.limit[i]) { vtheta[i] <- lower.limit[i]
-                 } else { vtheta[i] <- vtheta[i] } } ) # end of sapply
+         vtheta <- ifelse((vtheta<lower.limit), lower.limit, vtheta)
+
          wk.vscalefact <- vtheta*(denom-vone)/(vone+vtheta) + vone
                                        } # end of if model.name beta binomial
       if (model.name=="correlated binomial") {
-         vtheta <- sapply(1:nobs, function(i) {
-             if (vtheta[i]<lower.limit[i]) { vtheta[i] <- lower.limit[i]
-                 } else { vtheta[i] <- vtheta[i] } } ) # end of sapply
-         vtheta <- sapply(1:nobs, function(i) {
-             if (vtheta[i]>upper.limit[i]) { vtheta[i] <- upper.limit[i]
-                 } else { vtheta[i] <- vtheta[i] } } ) # end of sapply
+         vtheta <- ifelse((vtheta<lower.limit), lower.limit, vtheta)
+         vtheta <- ifelse((vtheta>upper.limit), upper.limit, vtheta)
+
          wk.vscalefact <- vtheta*(denom-vone) + vone
                                        } # end of if model.name correlated binomial
 # scale-factor can be less than 0, so setting scale-factor = 1.e-10 when that is so
-      wk.vscalefact <- sapply(1:nobs, function(i) {
-          if (wk.vscalefact[i]<=0) { wk.vscalefact[i] <- 1.e-10
-                            } else { wk.vscalefact[i] <- wk.vscalefact[i] } } ) # end of sapply
+      wk.vscalefact <- ifelse( (wk.vscalefact<=0), 1.e-10, wk.vscalefact )
 
 # returning estimates of the scale factor to estimates of the parameters 
 # of the linear predictor        
@@ -164,11 +136,7 @@ function(parameter,model.type,model.name,link,ntrials,
 #  These are relatively small i.e., of the order of 10^-15 or smaller, so rounding 
 #  such probabilities to 0.
    probabilities <- lapply(1:nobs, function(i) { 
-      probabilities[[i]] <- sapply(1:length(probabilities[[i]]), function(j) { 
-         if (probabilities[[i]][j]<0) { 
-            probabilities[[i]][j] <- 0
-                                         } else {
-            probabilities[[i]][j] <- probabilities[[i]][j] } } ) # end of sapply
+      probabilities[[i]] <- ifelse( (probabilities[[i]]<0), 0, probabilities[[i]])
                                          } ) # end of lapply
 #  Total probability can be slightly different from 1 therefore adjusting to total
    probabilities <- lapply(1:nobs, function(i) { 

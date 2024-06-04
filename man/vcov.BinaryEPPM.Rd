@@ -19,6 +19,7 @@ variance/covariance matrix for coefficients of probability of success ("p"),
 variance/covariance matrix for coefficients of scale-factor ("scale.factor")
 }
   \item{\dots}{
+other parameters to be passed through to plotting functions.
 }
 }
 \value{
@@ -29,7 +30,7 @@ Cribari-Neto F, Zeileis A. (2010). Beta Regression in R.
 \emph{Journal of Statistical Software}, \bold{34}(2), 1-24. \doi{10.18637/jss.v034.i02}.
 }
 \author{
-David M. Smith <smithdm1@us.ibm.com>
+David M. Smith <dmccsmith@verizon.net>
 }
 \seealso{
 \code{\link[betareg]{betareg}} 
